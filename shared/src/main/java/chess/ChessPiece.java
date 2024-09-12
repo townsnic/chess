@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -10,7 +11,12 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -23,6 +29,33 @@ public class ChessPiece {
         KNIGHT,
         ROOK,
         PAWN
+    }
+
+    /**
+     * Overrides the equals method to compare attributes of ChessPiece
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ChessPiece piece = (ChessPiece) obj;
+        return (pieceColor.equals(piece.pieceColor) && type.equals(piece.type));
+    }
+
+    /**
+     * Overrides the hash method for larger hash spread
+     */
+    @Override
+    public int hashCode() {
+        return 97 * (pieceColor.hashCode() + type.hashCode());
+    }
+
+    /**
+     * Overrides the toString method to print ChessPiece color and type
+     */
+    @Override
+    public String toString() {
+        return String.format("%s %s", pieceColor.toString(), type.toString());
     }
 
     /**
@@ -47,6 +80,6 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        return new ArrayList<>();
     }
 }

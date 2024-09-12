@@ -8,7 +8,39 @@ package chess;
  */
 public class ChessPosition {
 
+    private final int row;
+    private final int col;
+
     public ChessPosition(int row, int col) {
+        this.row = row;
+        this.col = col;
+    }
+
+    /**
+     * Overrides the equals method to compare attributes of ChessPosition
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ChessPosition pos = (ChessPosition) obj;
+        return (row == pos.row && col == pos.col);
+    }
+
+    /**
+     * Overrides the hash method for larger hash spread
+     */
+    @Override
+    public int hashCode() {
+        return 97 * (row + col);
+    }
+
+    /**
+     * Overrides the toString method to print ChessPosition row and column
+     */
+    @Override
+    public String toString() {
+        return String.format("{%d,%d}", row, col);
     }
 
     /**
@@ -16,7 +48,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        throw new RuntimeException("Not implemented");
+        return row;
     }
 
     /**
@@ -24,6 +56,6 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        throw new RuntimeException("Not implemented");
+        return col;
     }
 }

@@ -8,8 +8,45 @@ package chess;
  */
 public class ChessMove {
 
+    private final ChessPosition startPosition;
+    private final ChessPosition endPosition;
+    private final ChessPiece.PieceType promotionPiece;
+
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+        this.startPosition = startPosition;
+        this.endPosition = endPosition;
+        this.promotionPiece = promotionPiece;
+    }
+
+    /**
+     * Overrides the equals method to compare attributes of ChessMove
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessMove move = (ChessMove) o;
+        return (startPosition.equals(move.startPosition) && endPosition.equals(move.endPosition)
+                && promotionPiece == move.promotionPiece);
+    }
+
+    /**
+     * Overrides the hash method for larger hash spread
+     */
+    @Override
+    public int hashCode() {
+        int promotionCode = promotionPiece == null ? 97 : promotionPiece.hashCode();
+        return 97 * (startPosition.hashCode() + endPosition.hashCode() + promotionCode);
+    }
+
+    /**
+     * Overrides the toString method to print ChessMove start, end, and promotion piece
+     */
+    @Override
+    public String toString() {
+        String newPiece = (promotionPiece == null ? "" : " " + promotionPiece.toString());
+        return String.format("%s->%s%s", startPosition.toString(), endPosition.toString(), newPiece);
     }
 
     /**
