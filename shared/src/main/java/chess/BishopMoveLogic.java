@@ -13,7 +13,7 @@ public class BishopMoveLogic extends PieceMoveLogic {
      * @return Collection of valid moves
      */
     @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece myPiece) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         int startPositionRow = myPosition.getRow();
         int startPositionCol = myPosition.getColumn();
@@ -24,6 +24,12 @@ public class BishopMoveLogic extends PieceMoveLogic {
         while (legalPosition(legalPositionRow, legalPositionCol)) {
             ChessPosition goodPosition = new ChessPosition(legalPositionRow, legalPositionCol);
             ChessMove goodMove = new ChessMove(myPosition, goodPosition, null);
+            if (board.getPiece(goodPosition) != null) {
+                if (board.getPiece(goodPosition).getTeamColor() != myPiece.getTeamColor()) {
+                    validMoves.add(goodMove);
+                }
+                break;
+            }
             validMoves.add(goodMove);
             legalPositionRow += 1;
             legalPositionCol -= 1;
@@ -35,6 +41,12 @@ public class BishopMoveLogic extends PieceMoveLogic {
         while (legalPosition(legalPositionRow, legalPositionCol)) {
             ChessPosition goodPosition = new ChessPosition(legalPositionRow, legalPositionCol);
             ChessMove goodMove = new ChessMove(myPosition, goodPosition, null);
+            if (board.getPiece(goodPosition) != null) {
+                if (board.getPiece(goodPosition).getTeamColor() != myPiece.getTeamColor()) {
+                    validMoves.add(goodMove);
+                }
+                break;
+            }
             validMoves.add(goodMove);
             legalPositionRow += 1;
             legalPositionCol += 1;
@@ -46,6 +58,12 @@ public class BishopMoveLogic extends PieceMoveLogic {
         while (legalPosition(legalPositionRow, legalPositionCol)) {
             ChessPosition goodPosition = new ChessPosition(legalPositionRow, legalPositionCol);
             ChessMove goodMove = new ChessMove(myPosition, goodPosition, null);
+            if (board.getPiece(goodPosition) != null) {
+                if (board.getPiece(goodPosition).getTeamColor() != myPiece.getTeamColor()) {
+                    validMoves.add(goodMove);
+                }
+                break;
+            }
             validMoves.add(goodMove);
             legalPositionRow -= 1;
             legalPositionCol -= 1;
@@ -57,6 +75,12 @@ public class BishopMoveLogic extends PieceMoveLogic {
         while (legalPosition(legalPositionRow, legalPositionCol)) {
             ChessPosition goodPosition = new ChessPosition(legalPositionRow, legalPositionCol);
             ChessMove goodMove = new ChessMove(myPosition, goodPosition, null);
+            if (board.getPiece(goodPosition) != null) {
+                if (board.getPiece(goodPosition).getTeamColor() != myPiece.getTeamColor()) {
+                    validMoves.add(goodMove);
+                }
+                break;
+            }
             validMoves.add(goodMove);
             legalPositionRow -= 1;
             legalPositionCol += 1;

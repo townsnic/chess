@@ -87,7 +87,7 @@ public class ChessPiece {
                 return new ArrayList<>();
             case BISHOP:
                 BishopMoveLogic bishopMove = new BishopMoveLogic();
-                return bishopMove.pieceMoves(board, myPosition);
+                return bishopMove.pieceMoves(board, myPosition, this);
             case KNIGHT:
                 return new ArrayList<>();
             case ROOK:
