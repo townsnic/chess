@@ -3,16 +3,11 @@ package chess;
 import java.util.Collection;
 
 /**
- * For a class that can manage a chess game, making moves on a board
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
+ * A class that can manage a chess game, making moves on a board
  */
 public class ChessGame {
 
-    public ChessGame() {
-
-    }
+    public ChessGame() {}
 
     /**
      * @return Which team's turn it is

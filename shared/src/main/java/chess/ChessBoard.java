@@ -1,18 +1,13 @@
 package chess;
 
 /**
- * A chessboard that can hold and rearrange chess pieces.
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
+ * A chessboard that can hold and rearrange chess pieces
  */
 public class ChessBoard {
 
     private ChessPiece[][] squares = new ChessPiece[8][8];
 
-    public ChessBoard() {
-        
-    }
+    public ChessBoard() {}
 
     /**
      * Adds a chess piece to the chessboard

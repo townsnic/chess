@@ -2,9 +2,6 @@ package chess;
 
 /**
  * Represents moving a chess piece on a chessboard
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
  */
 public class ChessMove {
 
@@ -21,18 +18,23 @@ public class ChessMove {
 
     /**
      * Overrides the equals method to compare attributes of ChessMove
+     *
+     * @param obj the object to compare current instantiation to
+     * @return if the objects are equal
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessMove move = (ChessMove) o;
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ChessMove move = (ChessMove) obj;
         return (startPosition.equals(move.startPosition) && endPosition.equals(move.endPosition)
                 && promotionPiece == move.promotionPiece);
     }
 
     /**
      * Overrides the hash method for larger hash spread
+     *
+     * @return the new hash code
      */
     @Override
     public int hashCode() {
@@ -42,6 +44,8 @@ public class ChessMove {
 
     /**
      * Overrides the toString method to print ChessMove start, end, and promotion piece
+     *
+     * @return a string of the start position, end position, and promotion piece, if applicable
      */
     @Override
     public String toString() {

@@ -5,9 +5,6 @@ import java.util.Collection;
 
 /**
  * Represents a single chess piece
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
  */
 public class ChessPiece {
 
@@ -33,6 +30,9 @@ public class ChessPiece {
 
     /**
      * Overrides the equals method to compare attributes of ChessPiece
+     *
+     * @param obj the object to compare current instantiation to
+     * @return if the objects are equal
      */
     @Override
     public boolean equals(Object obj) {
@@ -44,6 +44,8 @@ public class ChessPiece {
 
     /**
      * Overrides the hash method for larger hash spread
+     *
+     * @return the new hash code
      */
     @Override
     public int hashCode() {
@@ -52,6 +54,8 @@ public class ChessPiece {
 
     /**
      * Overrides the toString method to print ChessPiece color and type
+     *
+     * @return a string of the color and type of ChessPiece
      */
     @Override
     public String toString() {
@@ -77,12 +81,15 @@ public class ChessPiece {
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
      *
+     * @param board the current chess board
+     * @param myPosition the current position to check from
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         switch (type) {
             case KING:
-                return new ArrayList<>();
+                KingMoveLogic kingMove = new KingMoveLogic();
+                return kingMove.pieceMoves(board, myPosition, this);
             case QUEEN:
                 return new ArrayList<>();
             case BISHOP:

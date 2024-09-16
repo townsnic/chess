@@ -2,9 +2,6 @@ package chess;
 
 /**
  * Represents a single square position on a chess board
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
  */
 public class ChessPosition {
 
@@ -18,6 +15,9 @@ public class ChessPosition {
 
     /**
      * Overrides the equals method to compare attributes of ChessPosition
+     *
+     * @param obj the object to compare current instantiation to
+     * @return if the objects are equal
      */
     @Override
     public boolean equals(Object obj) {
@@ -29,6 +29,8 @@ public class ChessPosition {
 
     /**
      * Overrides the hash method for larger hash spread
+     *
+     * @return the new hash code
      */
     @Override
     public int hashCode() {
@@ -37,6 +39,8 @@ public class ChessPosition {
 
     /**
      * Overrides the toString method to print ChessPosition row and column
+     *
+     * @return a string of the row and column of ChessPosition
      */
     @Override
     public String toString() {
