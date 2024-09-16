@@ -4,52 +4,52 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Establishes the logic of how a king moves
+ * Establishes the logic of how a knight moves
  */
-public class KingMoveLogic extends PieceMoveLogic {
+public class KnightMoveLogic extends PieceMoveLogic {
 
     /**
-     * Determines if a king can move to in a given direction
+     * Determines if a knight can move to in a given direction
      *
      * @param board the current chess board
-     * @param startRow the column the king is at
-     * @param startCol the row the king is at
-     * @param myPosition the king's current position
-     * @param myPiece the king
+     * @param startRow the column the knight is at
+     * @param startCol the row the knight is at
+     * @param myPosition the knight's current position
+     * @param myPiece the knight
      * @param path the direction of interest
      * @return The move in the specified direction, if legal. If illegal, null
      */
     public ChessMove testDirection(ChessBoard board, int startRow, int startCol,
-                          ChessPosition myPosition, ChessPiece myPiece, Direction path) {
+                                   ChessPosition myPosition, ChessPiece myPiece, Direction path) {
         int rowIncrement;
         int colIncrement;
 
-        if (path == Direction.UP) {
-            rowIncrement = 1;
-            colIncrement = 0;
-        } else if (path == Direction.DOWN) {
-            rowIncrement = -1;
-            colIncrement = 0;
-        } else if (path == Direction.LEFT) {
-            rowIncrement = 0;
-            colIncrement = -1;
-        } else if (path == Direction.RIGHT) {
-            rowIncrement = 0;
-            colIncrement = 1;
-        } else if (path == Direction.UP_AND_LEFT) {
-            rowIncrement = 1;
+        if (path == Direction.UP_AND_LEFT) {
+            rowIncrement = 2;
             colIncrement = -1;
         } else if (path == Direction.UP_AND_RIGHT) {
-            rowIncrement = 1;
+            rowIncrement = 2;
             colIncrement = 1;
         } else if (path == Direction.DOWN_AND_LEFT) {
-            rowIncrement = -1;
+            rowIncrement = -2;
             colIncrement = -1;
         } else if (path == Direction.DOWN_AND_RIGHT) {
-            rowIncrement = -1;
+            rowIncrement = -2;
             colIncrement = 1;
+        } else if (path == Direction.LEFT_AND_UP) {
+            rowIncrement = 1;
+            colIncrement = -2;
+        } else if (path == Direction.LEFT_AND_DOWN) {
+            rowIncrement = -1;
+            colIncrement = -2;
+        } else if (path == Direction.RIGHT_AND_UP) {
+            rowIncrement = 1;
+            colIncrement = 2;
+        } else if (path == Direction.RIGHT_AND_DOWN) {
+            rowIncrement = -1;
+            colIncrement = 2;
         } else {
-            throw new RuntimeException("A king cannot move in that direction!");
+            throw new RuntimeException("A knight cannot move in that direction!");
         }
 
         if (onBoard(startRow + rowIncrement, startCol + colIncrement)) {
@@ -64,12 +64,12 @@ public class KingMoveLogic extends PieceMoveLogic {
     }
 
     /**
-     * Calculates all the positions a king can move to
+     * Calculates all the positions a knight can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
      *
      * @param board the current chess board
-     * @param myPosition the king's position
+     * @param myPosition the knight's position
      * @return Collection of valid moves
      */
     @Override
@@ -80,14 +80,6 @@ public class KingMoveLogic extends PieceMoveLogic {
         int startPositionCol = myPosition.getColumn();
 
         potentialMoves.add(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.UP));
-        potentialMoves.add(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.DOWN));
-        potentialMoves.add(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.LEFT));
-        potentialMoves.add(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.RIGHT));
-        potentialMoves.add(testDirection(board, startPositionRow,
                 startPositionCol, myPosition, myPiece, Direction.UP_AND_LEFT));
         potentialMoves.add(testDirection(board, startPositionRow,
                 startPositionCol, myPosition, myPiece, Direction.UP_AND_RIGHT));
@@ -95,6 +87,14 @@ public class KingMoveLogic extends PieceMoveLogic {
                 startPositionCol, myPosition, myPiece, Direction.DOWN_AND_LEFT));
         potentialMoves.add(testDirection(board, startPositionRow,
                 startPositionCol, myPosition, myPiece, Direction.DOWN_AND_RIGHT));
+        potentialMoves.add(testDirection(board, startPositionRow,
+                startPositionCol, myPosition, myPiece, Direction.LEFT_AND_UP));
+        potentialMoves.add(testDirection(board, startPositionRow,
+                startPositionCol, myPosition, myPiece, Direction.LEFT_AND_DOWN));
+        potentialMoves.add(testDirection(board, startPositionRow,
+                startPositionCol, myPosition, myPiece, Direction.RIGHT_AND_UP));
+        potentialMoves.add(testDirection(board, startPositionRow,
+                startPositionCol, myPosition, myPiece, Direction.RIGHT_AND_DOWN));
 
         for (ChessMove move : potentialMoves) {
             if (move != null) {
