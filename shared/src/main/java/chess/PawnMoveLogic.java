@@ -50,6 +50,54 @@ public class PawnMoveLogic extends PieceMoveLogic {
     }
 
     /**
+     * Determines if a pawn can move forward
+     *
+     * @param board the current chess board
+     * @param startRow the row the pawn is at
+     * @param startCol the column the pawn is at
+     * @param myPosition the pawn's current position
+     * @param myPiece the pawn
+     * @param path the direction of interest
+     * @return collection of legal forward moves
+     */
+    public Collection<ChessMove> testMove(ChessBoard board, int startRow, int startCol,
+                                            ChessPosition myPosition, ChessPiece myPiece, Direction path) {
+        ArrayList<ChessMove> moves = new ArrayList<>();
+        int rowIncrement;
+        int rowIncrementFirst;
+
+        if (path == Direction.UP) {
+            rowIncrement = 1;
+            rowIncrementFirst = 2;
+        } else if (path == Direction.DOWN) {
+            rowIncrement = -1;
+            rowIncrementFirst = -2;
+        } else {
+            throw new RuntimeException("A pawn cannot move in that direction!");
+        }
+
+        int newRow = startRow + rowIncrement;
+        ChessPosition newPosition = new ChessPosition(newRow, startCol);
+        if (!spaceOccupied(board, newPosition)) {
+            if (promotionSquare(myPiece, newRow)) {
+                moves.addAll(addAllPromotions(myPosition, newPosition));
+            } else {
+                moves.add(new ChessMove(myPosition, newPosition, null));
+            }
+
+            if (firstMove(myPiece, startRow)) {
+                int firstMoveRow = startRow + rowIncrementFirst;
+                ChessPosition firstMovePosition = new ChessPosition(firstMoveRow, startCol);
+                if (!spaceOccupied(board, firstMovePosition)) {
+                    moves.add(new ChessMove(myPosition, firstMovePosition, null));
+                }
+            }
+        }
+
+        return moves;
+    }
+
+    /**
      * Determines if a pawn can attack
      *
      * @param board the current chess board
@@ -88,8 +136,9 @@ public class PawnMoveLogic extends PieceMoveLogic {
         if (spaceOccupied(board, attackPosition) && !friendlyFire(board, attackPosition, myPiece)) {
             if (promotionSquare(myPiece, attackRow)) {
                 attacks.addAll(addAllPromotions(myPosition, attackPosition));
+            } else {
+                attacks.add(new ChessMove(myPosition, attackPosition, null));
             }
-            attacks.add(new ChessMove(myPosition, attackPosition, null));
         }
 
         return attacks;
@@ -110,10 +159,15 @@ public class PawnMoveLogic extends PieceMoveLogic {
         int startPositionRow = myPosition.getRow();
         int startPositionCol = myPosition.getColumn();
 
-        // Check forward 1
-        // Check if first move
-        // Check forward 2
-        
+        // Check moves
+        if (myPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            validMoves.addAll(testMove(board, startPositionRow, startPositionCol,
+                    myPosition, myPiece, Direction.UP));
+        } else if (myPiece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            validMoves.addAll(testMove(board, startPositionRow, startPositionCol,
+                    myPosition, myPiece, Direction.DOWN));
+        }
+
         // Check attacks
         if (myPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             validMoves.addAll(testAttack(board, startPositionRow, startPositionCol,
@@ -126,9 +180,6 @@ public class PawnMoveLogic extends PieceMoveLogic {
             validMoves.addAll(testAttack(board, startPositionRow, startPositionCol,
                     myPosition, myPiece, Direction.DOWN_AND_RIGHT));
         }
-
-        // Check promotion
-
 
         return validMoves;
     }
