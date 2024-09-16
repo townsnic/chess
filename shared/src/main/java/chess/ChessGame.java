@@ -10,7 +10,15 @@ public class ChessGame {
     public ChessGame() {}
 
     /**
-     * @return Which team's turn it is
+     * Enum identifying the 2 possible teams in a chess game
+     */
+    public enum TeamColor {
+        WHITE,
+        BLACK
+    }
+
+    /**
+     * @return which team's turn it is
      */
     public TeamColor getTeamTurn() {
         throw new RuntimeException("Not implemented");
@@ -26,18 +34,10 @@ public class ChessGame {
     }
 
     /**
-     * Enum identifying the 2 possible teams in a chess game
-     */
-    public enum TeamColor {
-        WHITE,
-        BLACK
-    }
-
-    /**
      * Gets a valid moves for a piece at the given location
      *
      * @param startPosition the piece to get valid moves for
-     * @return Set of valid moves for requested piece, or null if no piece at
+     * @return set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
@@ -58,7 +58,7 @@ public class ChessGame {
      * Determines if the given team is in check
      *
      * @param teamColor which team to check for check
-     * @return True if the specified team is in check
+     * @return true if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
@@ -68,7 +68,7 @@ public class ChessGame {
      * Determines if the given team is in checkmate
      *
      * @param teamColor which team to check for checkmate
-     * @return True if the specified team is in checkmate
+     * @return true if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
@@ -79,7 +79,7 @@ public class ChessGame {
      * no valid moves
      *
      * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
+     * @return true if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");

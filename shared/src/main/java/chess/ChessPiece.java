@@ -63,7 +63,7 @@ public class ChessPiece {
     }
 
     /**
-     * @return Which team this chess piece belongs to
+     * @return which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
         return pieceColor;
@@ -83,7 +83,7 @@ public class ChessPiece {
      *
      * @param board the current chess board
      * @param myPosition the current position to check from
-     * @return Collection of valid moves
+     * @return collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         switch (type) {
@@ -101,7 +101,8 @@ public class ChessPiece {
             case ROOK:
                 return new ArrayList<>();
             case PAWN:
-                return new ArrayList<>();
+                PawnMoveLogic pawnMove = new PawnMoveLogic();
+                return pawnMove.pieceMoves(board, myPosition, this);
             default:
                 throw new RuntimeException("Invalid Piece!");
         }

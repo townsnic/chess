@@ -12,12 +12,12 @@ public class KnightMoveLogic extends PieceMoveLogic {
      * Determines if a knight can move to in a given direction
      *
      * @param board the current chess board
-     * @param startRow the column the knight is at
-     * @param startCol the row the knight is at
+     * @param startRow the row the knight is at
+     * @param startCol the column the knight is at
      * @param myPosition the knight's current position
      * @param myPiece the knight
      * @param path the direction of interest
-     * @return The move in the specified direction, if legal. If illegal, null
+     * @return the move in the specified direction, if legal. If illegal, null
      */
     public ChessMove testDirection(ChessBoard board, int startRow, int startCol,
                                    ChessPosition myPosition, ChessPiece myPiece, Direction path) {
@@ -54,9 +54,8 @@ public class KnightMoveLogic extends PieceMoveLogic {
 
         if (onBoard(startRow + rowIncrement, startCol + colIncrement)) {
             ChessPosition goodPosition = new ChessPosition(startRow + rowIncrement, startCol + colIncrement);
-            ChessMove goodMove = new ChessMove(myPosition, goodPosition, null);
             if (!friendlyFire(board, goodPosition, myPiece)) {
-                return goodMove;
+                return new ChessMove(myPosition, goodPosition, null);
             }
         }
 
@@ -70,7 +69,7 @@ public class KnightMoveLogic extends PieceMoveLogic {
      *
      * @param board the current chess board
      * @param myPosition the knight's position
-     * @return Collection of valid moves
+     * @return collection of valid moves
      */
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece myPiece) {

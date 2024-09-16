@@ -34,7 +34,7 @@ public class PieceMoveLogic {
      *
      * @param board the current chess board
      * @param myPosition the current position to check from
-     * @return Collection of valid moves
+     * @return collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece myPiece) {
         return new ArrayList<>();
