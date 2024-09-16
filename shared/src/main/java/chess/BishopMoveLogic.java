@@ -25,6 +25,7 @@ public class BishopMoveLogic extends PieceMoveLogic {
         int rowIncrement;
         int colIncrement;
 
+        // Determine move direction
         if (path == Direction.UP_AND_LEFT) {
             rowIncrement = 1;
             colIncrement = -1;
@@ -43,9 +44,12 @@ public class BishopMoveLogic extends PieceMoveLogic {
 
         int newRow = startRow + rowIncrement;
         int newCol = startCol + colIncrement;
+        // Ensure potential position is on board
         while (onBoard(newRow, newCol)) {
             ChessPosition goodPosition = new ChessPosition(newRow, newCol);
+            // Check if space is occupied
             if (spaceOccupied(board, goodPosition)) {
+                // Ensure the position is not occupied by same team piece
                 if (!friendlyFire(board, goodPosition, myPiece)) {
                     oneDirectionMoves.add(new ChessMove(myPosition, goodPosition, null));
                 }

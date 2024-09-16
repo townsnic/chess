@@ -24,6 +24,7 @@ public class KingMoveLogic extends PieceMoveLogic {
         int rowIncrement;
         int colIncrement;
 
+        // Determine move direction
         if (path == Direction.UP) {
             rowIncrement = 1;
             colIncrement = 0;
@@ -52,13 +53,14 @@ public class KingMoveLogic extends PieceMoveLogic {
             throw new RuntimeException("A king cannot move in that direction!");
         }
 
+        // Ensure potential position is on the board
         if (onBoard(startRow + rowIncrement, startCol + colIncrement)) {
             ChessPosition goodPosition = new ChessPosition(startRow + rowIncrement, startCol + colIncrement);
+            // Ensure the position is not occupied by same team piece
             if (!friendlyFire(board, goodPosition, myPiece)) {
                 return new ChessMove(myPosition, goodPosition, null);
             }
         }
-
         return null;
     }
 
@@ -95,6 +97,7 @@ public class KingMoveLogic extends PieceMoveLogic {
         potentialMoves.add(testDirection(board, startPositionRow,
                 startPositionCol, myPosition, myPiece, Direction.DOWN_AND_RIGHT));
 
+        // Remove null moves from collection
         for (ChessMove move : potentialMoves) {
             if (move != null) {
                 validMoves.add(move);

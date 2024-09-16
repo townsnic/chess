@@ -66,6 +66,7 @@ public class PawnMoveLogic extends PieceMoveLogic {
         int rowIncrement;
         int rowIncrementFirst;
 
+        // Determine move direction
         if (path == Direction.UP) {
             rowIncrement = 1;
             rowIncrementFirst = 2;
@@ -78,22 +79,24 @@ public class PawnMoveLogic extends PieceMoveLogic {
 
         int newRow = startRow + rowIncrement;
         ChessPosition newPosition = new ChessPosition(newRow, startCol);
+        // Check square directly ahead
         if (!spaceOccupied(board, newPosition)) {
+            // Check if promotion square
             if (promotionSquare(myPiece, newRow)) {
                 moves.addAll(addAllPromotions(myPosition, newPosition));
             } else {
                 moves.add(new ChessMove(myPosition, newPosition, null));
             }
-
+            // Check if first move
             if (firstMove(myPiece, startRow)) {
                 int firstMoveRow = startRow + rowIncrementFirst;
                 ChessPosition firstMovePosition = new ChessPosition(firstMoveRow, startCol);
+                // Check square two squares ahead
                 if (!spaceOccupied(board, firstMovePosition)) {
                     moves.add(new ChessMove(myPosition, firstMovePosition, null));
                 }
             }
         }
-
         return moves;
     }
 
@@ -114,6 +117,7 @@ public class PawnMoveLogic extends PieceMoveLogic {
         int rowIncrement;
         int colIncrement;
 
+        // Determine attack directions
         if (path == Direction.UP_AND_LEFT) {
             rowIncrement = 1;
             colIncrement = -1;
@@ -133,14 +137,15 @@ public class PawnMoveLogic extends PieceMoveLogic {
         int attackRow = startRow + rowIncrement;
         int attackCol = startCol + colIncrement;
         ChessPosition attackPosition = new ChessPosition(attackRow, attackCol);
+        // Check if enemy piece is in attack position
         if (spaceOccupied(board, attackPosition) && !friendlyFire(board, attackPosition, myPiece)) {
+            // Check if promotion square
             if (promotionSquare(myPiece, attackRow)) {
                 attacks.addAll(addAllPromotions(myPosition, attackPosition));
             } else {
                 attacks.add(new ChessMove(myPosition, attackPosition, null));
             }
         }
-
         return attacks;
     }
 
@@ -180,7 +185,6 @@ public class PawnMoveLogic extends PieceMoveLogic {
             validMoves.addAll(testAttack(board, startPositionRow, startPositionCol,
                     myPosition, myPiece, Direction.DOWN_AND_RIGHT));
         }
-
         return validMoves;
     }
 }
