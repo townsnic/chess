@@ -19,7 +19,7 @@ public class BishopMoveLogic extends PieceMoveLogic {
      * @param path the direction of interest
      * @return collection of valid moves in a single direction
      */
-    public Collection<ChessMove> testDirection(ChessBoard board, int startRow, int startCol,
+    private Collection<ChessMove> testDirection(ChessBoard board, int startRow, int startCol,
                                                  ChessPosition myPosition, ChessPiece myPiece, Direction path) {
         ArrayList<ChessMove> oneDirectionMoves = new ArrayList<>();
         int rowIncrement;

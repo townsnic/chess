@@ -19,7 +19,7 @@ public class KnightMoveLogic extends PieceMoveLogic {
      * @param path the direction of interest
      * @return the move in the specified direction, if legal. If illegal, null
      */
-    public ChessMove testDirection(ChessBoard board, int startRow, int startCol,
+    private ChessMove testDirection(ChessBoard board, int startRow, int startCol,
                                    ChessPosition myPosition, ChessPiece myPiece, Direction path) {
         int rowIncrement;
         int colIncrement;

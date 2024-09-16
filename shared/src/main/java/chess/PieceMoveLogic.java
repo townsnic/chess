@@ -12,7 +12,7 @@ public class PieceMoveLogic {
      * The various directions a piece can move
      * Not all pieces can move in all directions
      */
-    public enum Direction {
+    protected enum Direction {
         UP,
         DOWN,
         LEFT,
@@ -47,7 +47,7 @@ public class PieceMoveLogic {
      * @param col the column to check
      * @return if the position is on the chess board
      */
-    public boolean onBoard(int row, int col) {
+    protected boolean onBoard(int row, int col) {
         return (0 < row && row < 9 && 0 < col && col < 9);
     }
 
@@ -58,7 +58,7 @@ public class PieceMoveLogic {
      * @param checkPosition the current position to check
      * @return if the position is occupied
      */
-    public boolean spaceOccupied(ChessBoard board, ChessPosition checkPosition) {
+    protected boolean spaceOccupied(ChessBoard board, ChessPosition checkPosition) {
         return board.getPiece(checkPosition) != null;
     }
 
@@ -70,7 +70,7 @@ public class PieceMoveLogic {
      * @param myPiece the chess piece in play
      * @return if the position is occupied by a piece of the same team
      */
-    public boolean friendlyFire(ChessBoard board, ChessPosition checkPosition, ChessPiece myPiece) {
+    protected boolean friendlyFire(ChessBoard board, ChessPosition checkPosition, ChessPiece myPiece) {
         if (!spaceOccupied(board, checkPosition)) {
             return false;
         }

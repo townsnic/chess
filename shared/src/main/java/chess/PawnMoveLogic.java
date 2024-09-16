@@ -15,7 +15,7 @@ public class PawnMoveLogic extends PieceMoveLogic {
      * @param startRow the row the pawn is at
      * @return if the pawn is taking its first move
      */
-    public boolean firstMove(ChessPiece myPiece, int startRow) {
+    private boolean firstMove(ChessPiece myPiece, int startRow) {
         return (myPiece.getTeamColor() == ChessGame.TeamColor.WHITE && startRow == 2)
                 || (myPiece.getTeamColor() == ChessGame.TeamColor.BLACK && startRow == 7);
     }
@@ -27,7 +27,7 @@ public class PawnMoveLogic extends PieceMoveLogic {
      * @param newRow the row the pawn is moving to
      * @return if the pawn is moving to a promotion square
      */
-    public boolean promotionSquare(ChessPiece myPiece, int newRow) {
+    private boolean promotionSquare(ChessPiece myPiece, int newRow) {
         return (myPiece.getTeamColor() == ChessGame.TeamColor.WHITE && newRow == 8)
                 || (myPiece.getTeamColor() == ChessGame.TeamColor.BLACK && newRow == 1);
     }
@@ -39,7 +39,7 @@ public class PawnMoveLogic extends PieceMoveLogic {
      * @param endPosition the position the pawn is moving to
      * @return a collection of all possible promotions
      */
-    public Collection<ChessMove> addAllPromotions(ChessPosition myPosition, ChessPosition endPosition) {
+    private Collection<ChessMove> addAllPromotions(ChessPosition myPosition, ChessPosition endPosition) {
         ArrayList<ChessMove> promotions = new ArrayList<>();
         promotions.add(new ChessMove(myPosition, endPosition, ChessPiece.PieceType.QUEEN));
         promotions.add(new ChessMove(myPosition, endPosition, ChessPiece.PieceType.ROOK));
@@ -60,7 +60,7 @@ public class PawnMoveLogic extends PieceMoveLogic {
      * @param path the direction of interest
      * @return collection of legal forward moves
      */
-    public Collection<ChessMove> testMove(ChessBoard board, int startRow, int startCol,
+    private Collection<ChessMove> testMove(ChessBoard board, int startRow, int startCol,
                                             ChessPosition myPosition, ChessPiece myPiece, Direction path) {
         ArrayList<ChessMove> moves = new ArrayList<>();
         int rowIncrement;
@@ -111,7 +111,7 @@ public class PawnMoveLogic extends PieceMoveLogic {
      * @param path the direction of interest
      * @return collection of legal attacking moves
      */
-    public Collection<ChessMove> testAttack(ChessBoard board, int startRow, int startCol,
+    private Collection<ChessMove> testAttack(ChessBoard board, int startRow, int startCol,
                                    ChessPosition myPosition, ChessPiece myPiece, Direction path) {
         ArrayList<ChessMove> attacks = new ArrayList<>();
         int rowIncrement;
