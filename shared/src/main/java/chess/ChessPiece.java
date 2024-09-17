@@ -100,7 +100,8 @@ public class ChessPiece {
                 KnightMoveLogic knightMove = new KnightMoveLogic();
                 return knightMove.pieceMoves(board, myPosition, this);
             case ROOK:
-                return new ArrayList<>();
+                RookMoveLogic rookMove = new RookMoveLogic();
+                return rookMove.pieceMoves(board, myPosition, this);
             case PAWN:
                 PawnMoveLogic pawnMove = new PawnMoveLogic();
                 return pawnMove.pieceMoves(board, myPosition, this);
