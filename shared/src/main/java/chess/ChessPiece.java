@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -86,27 +85,32 @@ public class ChessPiece {
      * @return collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        switch (type) {
-            case KING:
+        return switch (type) {
+            case KING -> {
                 KingMoveLogic kingMove = new KingMoveLogic();
-                return kingMove.pieceMoves(board, myPosition, this);
-            case QUEEN:
+                yield kingMove.pieceMoves(board, myPosition, this);
+            }
+            case QUEEN -> {
                 QueenMoveLogic queenMove = new QueenMoveLogic();
-                return queenMove.pieceMoves(board, myPosition, this);
-            case BISHOP:
+                yield queenMove.pieceMoves(board, myPosition, this);
+            }
+            case BISHOP -> {
                 BishopMoveLogic bishopMove = new BishopMoveLogic();
-                return bishopMove.pieceMoves(board, myPosition, this);
-            case KNIGHT:
+                yield bishopMove.pieceMoves(board, myPosition, this);
+            }
+            case KNIGHT -> {
                 KnightMoveLogic knightMove = new KnightMoveLogic();
-                return knightMove.pieceMoves(board, myPosition, this);
-            case ROOK:
+                yield knightMove.pieceMoves(board, myPosition, this);
+            }
+            case ROOK -> {
                 RookMoveLogic rookMove = new RookMoveLogic();
-                return rookMove.pieceMoves(board, myPosition, this);
-            case PAWN:
+                yield rookMove.pieceMoves(board, myPosition, this);
+            }
+            case PAWN -> {
                 PawnMoveLogic pawnMove = new PawnMoveLogic();
-                return pawnMove.pieceMoves(board, myPosition, this);
-            default:
-                throw new RuntimeException("Invalid Piece!");
-        }
+                yield pawnMove.pieceMoves(board, myPosition, this);
+            }
+            default -> throw new RuntimeException("Invalid Piece!");
+        };
     }
 }
