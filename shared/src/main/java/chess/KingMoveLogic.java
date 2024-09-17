@@ -21,47 +21,10 @@ public class KingMoveLogic extends PieceMoveLogic {
      */
     private ChessMove testDirection(ChessBoard board, int startRow, int startCol,
                           ChessPosition myPosition, ChessPiece myPiece, Direction path) {
-        int rowIncrement;
-        int colIncrement;
-
-        // Determine move direction
-        if (path == Direction.UP) {
-            rowIncrement = 1;
-            colIncrement = 0;
-        } else if (path == Direction.DOWN) {
-            rowIncrement = -1;
-            colIncrement = 0;
-        } else if (path == Direction.LEFT) {
-            rowIncrement = 0;
-            colIncrement = -1;
-        } else if (path == Direction.RIGHT) {
-            rowIncrement = 0;
-            colIncrement = 1;
-        } else if (path == Direction.UP_AND_LEFT) {
-            rowIncrement = 1;
-            colIncrement = -1;
-        } else if (path == Direction.UP_AND_RIGHT) {
-            rowIncrement = 1;
-            colIncrement = 1;
-        } else if (path == Direction.DOWN_AND_LEFT) {
-            rowIncrement = -1;
-            colIncrement = -1;
-        } else if (path == Direction.DOWN_AND_RIGHT) {
-            rowIncrement = -1;
-            colIncrement = 1;
-        } else {
-            throw new RuntimeException("A king cannot move in that direction!");
-        }
-
-        // Ensure potential position is on the board
-        if (onBoard(startRow + rowIncrement, startCol + colIncrement)) {
-            ChessPosition goodPosition = new ChessPosition(startRow + rowIncrement, startCol + colIncrement);
-            // Ensure the position is not occupied by same team piece
-            if (!friendlyFire(board, goodPosition, myPiece)) {
-                return new ChessMove(myPosition, goodPosition, null);
-            }
-        }
-        return null;
+        int[] increments = setIncrements(path, myPiece);
+        int rowIncrement = increments[0];
+        int colIncrement = increments[1];
+        return justOneMove(board, myPiece, myPosition, startRow, startCol, rowIncrement, colIncrement);
     }
 
     /**

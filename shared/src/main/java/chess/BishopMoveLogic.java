@@ -21,45 +21,10 @@ public class BishopMoveLogic extends PieceMoveLogic {
      */
     private Collection<ChessMove> testDirection(ChessBoard board, int startRow, int startCol,
                                                  ChessPosition myPosition, ChessPiece myPiece, Direction path) {
-        ArrayList<ChessMove> oneDirectionMoves = new ArrayList<>();
-        int rowIncrement;
-        int colIncrement;
-
-        // Determine move direction
-        if (path == Direction.UP_AND_LEFT) {
-            rowIncrement = 1;
-            colIncrement = -1;
-        } else if (path == Direction.UP_AND_RIGHT) {
-            rowIncrement = 1;
-            colIncrement = 1;
-        } else if (path == Direction.DOWN_AND_LEFT) {
-            rowIncrement = -1;
-            colIncrement = -1;
-        } else if (path == Direction.DOWN_AND_RIGHT) {
-            rowIncrement = -1;
-            colIncrement = 1;
-        } else {
-            throw new RuntimeException("A bishop cannot move in that direction!");
-        }
-
-        int newRow = startRow + rowIncrement;
-        int newCol = startCol + colIncrement;
-        // Ensure potential position is on board
-        while (onBoard(newRow, newCol)) {
-            ChessPosition goodPosition = new ChessPosition(newRow, newCol);
-            // Check if space is occupied
-            if (spaceOccupied(board, goodPosition)) {
-                // Ensure the position is not occupied by same team piece
-                if (!friendlyFire(board, goodPosition, myPiece)) {
-                    oneDirectionMoves.add(new ChessMove(myPosition, goodPosition, null));
-                }
-                break;
-            }
-            oneDirectionMoves.add(new ChessMove(myPosition, goodPosition, null));
-            newRow += rowIncrement;
-            newCol += colIncrement;
-        }
-        return oneDirectionMoves;
+        int[] increments = setIncrements(path, myPiece);
+        int rowIncrement = increments[0];
+        int colIncrement = increments[1];
+        return asFarAsPossible(board, myPiece, myPosition, startRow, startCol, rowIncrement, colIncrement);
     }
 
     /**

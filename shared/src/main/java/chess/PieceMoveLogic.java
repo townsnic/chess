@@ -76,4 +76,106 @@ public class PieceMoveLogic {
         }
         return board.getPiece(checkPosition).getTeamColor() == myPiece.getTeamColor();
     }
+
+    /**
+     * Sets the row and column increment value of a piece given its direction
+     * Does not include logic for knights and pawns, as increments are different
+     *
+     * @param path the direction of interest
+     * @param myPiece the chess piece in play
+     * @return the row and column increment values
+     */
+    protected int[] setIncrements(Direction path, ChessPiece myPiece) {
+        int rowIncrement;
+        int colIncrement;
+
+        if (path == Direction.UP) {
+            rowIncrement = 1;
+            colIncrement = 0;
+        } else if (path == Direction.DOWN) {
+            rowIncrement = -1;
+            colIncrement = 0;
+        } else if (path == Direction.LEFT) {
+            rowIncrement = 0;
+            colIncrement = -1;
+        } else if (path == Direction.RIGHT) {
+            rowIncrement = 0;
+            colIncrement = 1;
+        } else if (path == Direction.UP_AND_LEFT) {
+            rowIncrement = 1;
+            colIncrement = -1;
+        } else if (path == Direction.UP_AND_RIGHT) {
+            rowIncrement = 1;
+            colIncrement = 1;
+        } else if (path == Direction.DOWN_AND_LEFT) {
+            rowIncrement = -1;
+            colIncrement = -1;
+        } else if (path == Direction.DOWN_AND_RIGHT) {
+            rowIncrement = -1;
+            colIncrement = 1;
+        } else {
+            throw new RuntimeException(String.format("A %s cannot move in that direction!", myPiece.getPieceType()));
+        }
+        return new int[]{rowIncrement, colIncrement};
+    }
+
+    /**
+     * Determines the moves of a piece that can only move one "space" (king, knight)
+     *
+     * @param board the current chess board
+     * @param myPiece the chess piece in play
+     * @param myPosition the current position of the piece
+     * @param startRow the row the piece is on
+     * @param startCol the column the piece is on
+     * @param rowIncrement the value to increment the row by (indicative of the move direction)
+     * @param colIncrement the value to increment the column by (indicative of the move direction)
+     * @return all the possible moves of a king or knight in one direction
+     */
+    protected ChessMove justOneMove(ChessBoard board, ChessPiece myPiece, ChessPosition myPosition,
+                                                    int startRow, int startCol, int rowIncrement, int colIncrement) {
+        // Ensure potential position is on the board
+        if (onBoard(startRow + rowIncrement, startCol + colIncrement)) {
+            ChessPosition goodPosition = new ChessPosition(startRow + rowIncrement, startCol + colIncrement);
+            // Ensure the position is not occupied by same team piece
+            if (!friendlyFire(board, goodPosition, myPiece)) {
+                return new ChessMove(myPosition, goodPosition, null);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Determines the moves of a piece that can move as far as possible (queen, bishop, rook)
+     *
+     * @param board the current chess board
+     * @param myPiece the chess piece in play
+     * @param myPosition the current position of the piece
+     * @param startRow the row the piece is on
+     * @param startCol the column the piece is on
+     * @param rowIncrement the value to increment the row by (indicative of the move direction)
+     * @param colIncrement the value to increment the column by (indicative of the move direction)
+     * @return all the possible moves of a queen, bishop, or rook in one direction
+     */
+    protected Collection<ChessMove> asFarAsPossible(ChessBoard board, ChessPiece myPiece, ChessPosition myPosition,
+                                                    int startRow, int startCol, int rowIncrement, int colIncrement) {
+        ArrayList<ChessMove> moves = new ArrayList<>();
+        int newRow = startRow + rowIncrement;
+        int newCol = startCol + colIncrement;
+        // Ensure potential position is on board
+        while (onBoard(newRow, newCol)) {
+            ChessPosition goodPosition = new ChessPosition(newRow, newCol);
+            // Check if space is occupied
+            if (spaceOccupied(board, goodPosition)) {
+                // Ensure the position is not occupied by same team piece
+                if (!friendlyFire(board, goodPosition, myPiece)) {
+                    moves.add(new ChessMove(myPosition, goodPosition, null));
+                }
+                break;
+            }
+            moves.add(new ChessMove(myPosition, goodPosition, null));
+            newRow += rowIncrement;
+            newCol += colIncrement;
+        }
+        return moves;
+    }
 }

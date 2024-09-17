@@ -53,15 +53,7 @@ public class KnightMoveLogic extends PieceMoveLogic {
             throw new RuntimeException("A knight cannot move in that direction!");
         }
 
-        // Ensure potential position is on the board
-        if (onBoard(startRow + rowIncrement, startCol + colIncrement)) {
-            ChessPosition goodPosition = new ChessPosition(startRow + rowIncrement, startCol + colIncrement);
-            // Ensure the position is not occupied by same team piece
-            if (!friendlyFire(board, goodPosition, myPiece)) {
-                return new ChessMove(myPosition, goodPosition, null);
-            }
-        }
-        return null;
+        return justOneMove(board, myPiece, myPosition, startRow, startCol, rowIncrement, colIncrement);
     }
 
     /**
