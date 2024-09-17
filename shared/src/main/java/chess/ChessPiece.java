@@ -110,7 +110,6 @@ public class ChessPiece {
                 PawnMoveLogic pawnMove = new PawnMoveLogic();
                 yield pawnMove.pieceMoves(board, myPosition, this);
             }
-            default -> throw new RuntimeException("Invalid Piece!");
         };
     }
 }

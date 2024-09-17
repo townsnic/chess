@@ -49,7 +49,7 @@ public class ChessMove {
      */
     @Override
     public String toString() {
-        String newPiece = (promotionPiece == null ? "" : " " + promotionPiece.toString());
+        String newPiece = (promotionPiece == null ? "" : " " + promotionPiece);
         return String.format("%s->%s%s", startPosition.toString(), endPosition.toString(), newPiece);
     }
 
