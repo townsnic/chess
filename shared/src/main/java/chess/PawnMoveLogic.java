@@ -138,12 +138,14 @@ public class PawnMoveLogic extends PieceMoveLogic {
         int attackCol = startCol + colIncrement;
         ChessPosition attackPosition = new ChessPosition(attackRow, attackCol);
         // Check if enemy piece is in attack position
-        if (spaceOccupied(board, attackPosition) && !friendlyFire(board, attackPosition, myPiece)) {
-            // Check if promotion square
-            if (promotionSquare(myPiece, attackRow)) {
-                attacks.addAll(addAllPromotions(myPosition, attackPosition));
-            } else {
-                attacks.add(new ChessMove(myPosition, attackPosition, null));
+        if (onBoard(attackRow, attackCol)) {
+            if (spaceOccupied(board, attackPosition) && !friendlyFire(board, attackPosition, myPiece)) {
+                // Check if promotion square
+                if (promotionSquare(myPiece, attackRow)) {
+                    attacks.addAll(addAllPromotions(myPosition, attackPosition));
+                } else {
+                    attacks.add(new ChessMove(myPosition, attackPosition, null));
+                }
             }
         }
         return attacks;
