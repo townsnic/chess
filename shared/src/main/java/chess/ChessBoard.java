@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * A chessboard that can hold and rearrange chess pieces
@@ -24,7 +22,7 @@ public class ChessBoard {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         ChessBoard board = (ChessBoard) obj;
-        return Objects.deepEquals(squares, board.squares);
+        return Arrays.deepEquals(squares, board.squares);
     }
 
     /**
@@ -37,6 +35,11 @@ public class ChessBoard {
         return Arrays.deepHashCode(squares);
     }
 
+    /**
+     * Overrides the toString method to print the current state of the chess board
+     *
+     * @return a string depiction of the chess board
+     */
     @Override
     public String toString() {
         String[][] pieces = new String[8][8];

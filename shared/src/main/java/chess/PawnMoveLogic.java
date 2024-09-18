@@ -114,25 +114,9 @@ public class PawnMoveLogic extends PieceMoveLogic {
     private Collection<ChessMove> testAttack(ChessBoard board, int startRow, int startCol,
                                    ChessPosition myPosition, ChessPiece myPiece, Direction path) {
         ArrayList<ChessMove> attacks = new ArrayList<>();
-        int rowIncrement;
-        int colIncrement;
-
-        // Determine attack directions
-        if (path == Direction.UP_AND_LEFT) {
-            rowIncrement = 1;
-            colIncrement = -1;
-        } else if (path == Direction.UP_AND_RIGHT) {
-            rowIncrement = 1;
-            colIncrement = 1;
-        } else if (path == Direction.DOWN_AND_LEFT) {
-            rowIncrement = -1;
-            colIncrement = -1;
-        } else if (path == Direction.DOWN_AND_RIGHT) {
-            rowIncrement = -1;
-            colIncrement = 1;
-        } else {
-            throw new RuntimeException("A pawn cannot attack in that direction!");
-        }
+        int[] increments = setIncrements(path, myPiece);
+        int rowIncrement = increments[0];
+        int colIncrement = increments[1];
 
         int attackRow = startRow + rowIncrement;
         int attackCol = startCol + colIncrement;
