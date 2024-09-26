@@ -9,7 +9,8 @@ public class ChessBoard {
 
     private final ChessPiece[][] squares = new ChessPiece[8][8];
 
-    public ChessBoard() {}
+    public ChessBoard() {
+    }
 
     /**
      * Overrides the equals method to compare attributes of ChessBoard
