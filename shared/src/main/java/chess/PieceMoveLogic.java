@@ -58,7 +58,7 @@ public class PieceMoveLogic {
      * @param checkPosition the current position to check
      * @return if the position is occupied
      */
-    protected boolean spaceOccupied(ChessBoard board, ChessPosition checkPosition) {
+    public static boolean spaceOccupied(ChessBoard board, ChessPosition checkPosition) {
         return board.getPiece(checkPosition) != null;
     }
 

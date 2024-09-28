@@ -75,7 +75,28 @@ public class ChessGame {
      * @return true if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingSpace = findKing(teamColor);
+        for (int row = 1; row < 9; ++row) {
+            for (int col = 1; col < 9; ++col) {
+                ChessPosition checkPosition = new ChessPosition(row, col);
+                if (PieceMoveLogic.spaceOccupied(board, checkPosition)) {
+                    ChessPiece piece = board.getPiece(checkPosition);
+                    if (piece.getTeamColor() != teamColor) {
+                        Collection<ChessMove> validMoves = piece.pieceMoves(board, checkPosition);
+                        if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
+                            if (validMoves.contains(new ChessMove(checkPosition, kingSpace, null))) {
+                                return true;
+                            }
+                        } else {
+                            if (validMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.QUEEN))) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -115,5 +136,27 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    /**
+     * Finds the position of the king of a given color
+     *
+     * @param teamColor which team's king to look for
+     * @return the position of the king
+     */
+    private ChessPosition findKing(TeamColor teamColor) {
+        ChessPiece king = new ChessPiece(teamColor, ChessPiece.PieceType.KING);
+        ChessPosition kingSpace = null;
+        for (int row = 1; row < 9; ++row) {
+            for (int col = 1; col < 9; ++col) {
+                ChessPosition possibleSpace = new ChessPosition(row, col);
+                if (PieceMoveLogic.spaceOccupied(board, possibleSpace)) {
+                    if (board.getPiece(possibleSpace).equals(king)) {
+                        kingSpace = possibleSpace;
+                    }
+                }
+            }
+        }
+        return kingSpace;
     }
 }
