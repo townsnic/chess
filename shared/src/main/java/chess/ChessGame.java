@@ -9,7 +9,6 @@ import java.util.Collection;
 public class ChessGame {
 
     private ChessBoard gameBoard = new ChessBoard();
-    private ChessBoard testBoard = new ChessBoard();
     private TeamColor turn;
 
     public ChessGame() {
@@ -56,11 +55,12 @@ public class ChessGame {
         potentialMoves = myPiece.pieceMoves(gameBoard, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>(potentialMoves);
         for (ChessMove potentialMove : potentialMoves) {
-            copyBoard();
-            testBoard.movePiece(potentialMove);
+            ChessBoard testBoard = copyBoard(gameBoard);
+            gameBoard.movePiece(potentialMove);
             if (isInCheck(currentTeam)) {
                 validMoves.remove(potentialMove);
             }
+            gameBoard = copyBoard(testBoard);
         }
         if (validMoves.isEmpty()) return null;
         return validMoves;
@@ -115,7 +115,6 @@ public class ChessGame {
      * @return true if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        copyBoard();
         if (isInCheck(teamColor)) {
             for (int row = 1; row < 9; ++row) {
                 for (int col = 1; col < 9; ++col) {
@@ -140,7 +139,6 @@ public class ChessGame {
      * @return true if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        copyBoard();
         if (isInCheck(teamColor)) {
             return false;
         }
@@ -187,14 +185,15 @@ public class ChessGame {
         return gameBoard;
     }
 
-    public ChessBoard copyBoard() {
+    public ChessBoard copyBoard(ChessBoard sourceBoard) {
+        ChessBoard copyBoard = new ChessBoard();
         for (int row = 1; row < 9; ++row) {
             for (int col = 1; col < 9; ++col) {
                 ChessPosition copyPosition = new ChessPosition(row, col);
-                testBoard.addPiece(copyPosition, gameBoard.getPiece(copyPosition));
+                copyBoard.addPiece(copyPosition, sourceBoard.getPiece(copyPosition));
             }
         }
-        return testBoard;
+        return copyBoard;
     }
 
     /**
@@ -209,8 +208,8 @@ public class ChessGame {
         for (int row = 1; row < 9; ++row) {
             for (int col = 1; col < 9; ++col) {
                 ChessPosition possibleSpace = new ChessPosition(row, col);
-                if (PieceMoveLogic.spaceOccupied(testBoard, possibleSpace)) {
-                    if (testBoard.getPiece(possibleSpace).equals(king)) {
+                if (PieceMoveLogic.spaceOccupied(gameBoard, possibleSpace)) {
+                    if (gameBoard.getPiece(possibleSpace).equals(king)) {
                         kingSpace = possibleSpace;
                     }
                 }
