@@ -51,12 +51,19 @@ public class ChessGame {
         Collection<ChessMove> potentialMoves;
         ChessPiece myPiece = gameBoard.getPiece(startPosition);
         TeamColor currentTeam = myPiece.getTeamColor();
+
+        // Ensures there is a piece at that space
         if (myPiece == null) return null;
+
         potentialMoves = myPiece.pieceMoves(gameBoard, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>(potentialMoves);
+
+        // Copies the chess board, makes a move, and then undoes the move
         for (ChessMove potentialMove : potentialMoves) {
             ChessBoard testBoard = copyBoard(gameBoard);
             gameBoard.movePiece(potentialMove);
+
+            // If a move places the team in check, it is not valid
             if (isInCheck(currentTeam)) {
                 validMoves.remove(potentialMove);
             }
@@ -84,20 +91,32 @@ public class ChessGame {
      * @return true if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        // Locates the position of the king
         ChessPosition kingSpace = findKing(teamColor);
+
+        // Iterates through every space on the board
         for (int row = 1; row < 9; ++row) {
             for (int col = 1; col < 9; ++col) {
                 ChessPosition checkPosition = new ChessPosition(row, col);
+
+                // Ensures a space is occupied by an enemy piece
                 if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition)) {
                     ChessPiece piece = gameBoard.getPiece(checkPosition);
                     if (piece.getTeamColor() != teamColor) {
-                        Collection<ChessMove> validMoves = piece.pieceMoves(gameBoard, checkPosition);
+                        Collection<ChessMove> legalMoves = piece.pieceMoves(gameBoard, checkPosition);
+
+                        // Checks if the piece is a pawn to account for promotions
                         if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
-                            if (validMoves.contains(new ChessMove(checkPosition, kingSpace, null))) {
+                            // Determines if the piece can legally attack the king
+                            if (legalMoves.contains(new ChessMove(checkPosition, kingSpace, null))) {
                                 return true;
                             }
                         } else {
-                            if (validMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.QUEEN))) {
+                            // Determines if the pawn can legally attack the king
+                            if (legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.QUEEN)) ||
+                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.ROOK)) ||
+                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.BISHOP)) ||
+                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.KNIGHT))) {
                                 return true;
                             }
                         }
@@ -139,27 +158,22 @@ public class ChessGame {
      * @return true if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        // If a color is in check, it cannot be a stalemate
         if (isInCheck(teamColor)) {
             return false;
         }
+        // Iterates through every space on the board
         for (int row = 1; row < 9; ++row) {
             for (int col = 1; col < 9; ++col) {
                 ChessPosition checkPosition = new ChessPosition(row, col);
+
+                // Ensures a space is occupied by a team piece
                 if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition)) {
                     ChessPiece piece = gameBoard.getPiece(checkPosition);
+
+                    // Checks if the piece can move
                     if (piece.getTeamColor() == teamColor) {
                         if (validMoves(checkPosition) != null) return false;
-//                        Collection<ChessMove> validMoves = piece.pieceMoves(board, checkPosition);
-//                        if (!validMoves.isEmpty()) {
-//                            for (ChessMove validMove : validMoves) {
-//                                ChessBoard testBoard = board;
-//                                testBoard.movePiece(validMove);
-//                                if (!isInCheck(teamColor)) {
-//                                    return false;
-//                                }
-//                            }
-//                        }
-//                    }
                     }
                 }
             }
@@ -187,6 +201,8 @@ public class ChessGame {
 
     public ChessBoard copyBoard(ChessBoard sourceBoard) {
         ChessBoard copyBoard = new ChessBoard();
+
+        // Iterates through every space on the chess board and copies the relevant piece over
         for (int row = 1; row < 9; ++row) {
             for (int col = 1; col < 9; ++col) {
                 ChessPosition copyPosition = new ChessPosition(row, col);
@@ -205,9 +221,13 @@ public class ChessGame {
     private ChessPosition findKing(TeamColor teamColor) {
         ChessPiece king = new ChessPiece(teamColor, ChessPiece.PieceType.KING);
         ChessPosition kingSpace = null;
+
+        // Iterates through every space on the chess board
         for (int row = 1; row < 9; ++row) {
             for (int col = 1; col < 9; ++col) {
                 ChessPosition possibleSpace = new ChessPosition(row, col);
+
+                // Ensures that a space is occupied and check if it is the correct king
                 if (PieceMoveLogic.spaceOccupied(gameBoard, possibleSpace)) {
                     if (gameBoard.getPiece(possibleSpace).equals(king)) {
                         kingSpace = possibleSpace;
