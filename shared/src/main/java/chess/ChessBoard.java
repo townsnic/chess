@@ -150,6 +150,23 @@ public class ChessBoard {
     }
 
     /**
+     * Moves a piece on the chess board
+     *
+     * @param move The move to be made
+     */
+    public void movePiece(ChessMove move) {
+        ChessPosition startPosition = move.getStartPosition();
+        int startRow = startPosition.getRow();
+        int startCol = startPosition.getColumn();
+        ChessPosition endPosition = move.getEndPosition();
+        int endRow = endPosition.getRow();
+        int endCol = endPosition.getColumn();
+        ChessPiece myPiece = getPiece(startPosition);
+        squares[startRow - 1][startCol - 1] = null;
+        squares[endRow - 1][endCol - 1] = myPiece;
+    }
+
+    /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
