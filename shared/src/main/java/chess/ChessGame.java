@@ -137,11 +137,28 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             for (int row = 1; row < 9; ++row) {
                 for (int col = 1; col < 9; ++col) {
-                    // Determine if space is occupied
-                    // Determine if piece is the correct color
-                    // Calculate valid moves for piece
-                    // Execute valid moves
-                    // Determine if move takes king out of check
+                    ChessPosition checkPosition = new ChessPosition(row, col);
+
+                    // Ensures a space is occupied by a team piece
+                    if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition)) {
+                        ChessPiece piece = gameBoard.getPiece(checkPosition);
+
+                        if (piece.getTeamColor() == teamColor) {
+                            Collection<ChessMove> validMoves = validMoves(checkPosition);
+                            if (validMoves != null) {
+                                for (ChessMove validMove : validMoves) {
+                                    ChessBoard testBoard = copyBoard(gameBoard);
+                                    gameBoard.movePiece(validMove);
+
+                                    // If a move removes the king from check, not checkmate
+                                    if (!isInCheck(teamColor)) {
+                                        return false;
+                                    }
+                                    gameBoard = copyBoard(testBoard);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } else {
