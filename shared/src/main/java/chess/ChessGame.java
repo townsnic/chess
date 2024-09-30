@@ -116,7 +116,8 @@ public class ChessGame {
                             if (legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.QUEEN)) ||
                                     legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.ROOK)) ||
                                     legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.BISHOP)) ||
-                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.KNIGHT))) {
+                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.KNIGHT)) ||
+                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, null))) {
                                 return true;
                             }
                         }
