@@ -145,8 +145,9 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         if (position.getRow() < 1 || position.getRow() > 8 || position.getColumn() < 1 || position.getColumn() > 8) {
             throw new RuntimeException("Cannot get piece, position out of bounds!");
+        } else {
+            return squares[position.getRow() - 1][position.getColumn() - 1];
         }
-        return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**

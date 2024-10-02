@@ -80,8 +80,20 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if (!validMoves(move.getStartPosition()).contains(move)) throw new InvalidMoveException();
-        else gameBoard.movePiece(move);
+        ChessPiece myPiece = gameBoard.getPiece(move.getStartPosition());
+        if (myPiece == null) {
+            throw new InvalidMoveException("There is no piece at that start position!");
+        }
+        else if (myPiece.getTeamColor() != turn) {
+            throw new InvalidMoveException("It's not your turn!");
+        } else if (validMoves(move.getStartPosition()) == null || !validMoves(move.getStartPosition()).contains(move)) {
+            if (myPiece.pieceMoves(gameBoard, move.getStartPosition()).contains(move)) {
+                throw new InvalidMoveException("You can't leave your king in check!");
+            }
+            throw new InvalidMoveException("Invalid move!");
+        } else {
+            gameBoard.movePiece(move);
+        }
     }
 
     /**
