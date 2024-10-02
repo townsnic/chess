@@ -94,6 +94,7 @@ public class ChessGame {
         } else {
             gameBoard.movePiece(move);
         }
+        setTeamTurn((myPiece.getTeamColor() == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE);
     }
 
     /**
@@ -105,6 +106,8 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         // Locates the position of the king
         ChessPosition kingSpace = findKing(teamColor);
+        // Account for poorly-designed test cases where there is no king on the board
+        if (kingSpace == null) return false;
 
         // Iterates through every space on the board
         for (int row = 1; row < 9; ++row) {
@@ -246,7 +249,8 @@ public class ChessGame {
      * Finds the position of the king of a given color
      *
      * @param teamColor which team's king to look for
-     * @return the position of the king
+     * @return the position of the king, or null if running a
+     * poorly-designed test case where there's no king on the board
      */
     private ChessPosition findKing(TeamColor teamColor) {
         ChessPiece king = new ChessPiece(teamColor, ChessPiece.PieceType.KING);

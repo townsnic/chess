@@ -156,15 +156,26 @@ public class ChessBoard {
      * @param move The move to be made
      */
     public void movePiece(ChessMove move) {
+        // Start Position
         ChessPosition startPosition = move.getStartPosition();
         int startRow = startPosition.getRow();
         int startCol = startPosition.getColumn();
+        // End Position
         ChessPosition endPosition = move.getEndPosition();
         int endRow = endPosition.getRow();
         int endCol = endPosition.getColumn();
+        // Piece
         ChessPiece myPiece = getPiece(startPosition);
+
+        // Set the current position to null
         squares[startRow - 1][startCol - 1] = null;
-        squares[endRow - 1][endCol - 1] = myPiece;
+
+        // Move the piece or exchange it for its promotion piece
+        if (move.getPromotionPiece() == null) {
+            squares[endRow - 1][endCol - 1] = myPiece;
+        } else {
+            squares[endRow - 1][endCol - 1] = new ChessPiece(myPiece.getTeamColor(), move.getPromotionPiece());
+        }
     }
 
     /**
