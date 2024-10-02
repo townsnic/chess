@@ -185,12 +185,20 @@ public class ChessBoard {
     public void resetBoard() {
         ChessPosition[][] allPositions = new ChessPosition[8][8];
 
+        // Create array of positions, set every space to null
         for (int row = 1; row < 9; ++row) {
             for (int col = 1; col < 9; ++col) {
                 squares[row-1][col-1] = null;
                 allPositions[row-1][col-1] = new ChessPosition(row, col);
             }
         }
+
+        // Rows 2 & 7
+        for (int pawn = 0; pawn < 8; ++pawn) {
+            addPiece(allPositions[1][pawn], new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+            addPiece(allPositions[6][pawn], new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+        }
+
         //Row 1
         addPiece(allPositions[0][0], new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         addPiece(allPositions[0][1], new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
@@ -200,10 +208,6 @@ public class ChessBoard {
         addPiece(allPositions[0][5], new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
         addPiece(allPositions[0][6], new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
         addPiece(allPositions[0][7], new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
-        //Row 2
-        for (int pawn = 0; pawn < 8; ++pawn) {
-            addPiece(allPositions[1][pawn], new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
-        }
         // Row 8
         addPiece(allPositions[7][0], new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
         addPiece(allPositions[7][1], new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
@@ -213,9 +217,5 @@ public class ChessBoard {
         addPiece(allPositions[7][5], new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
         addPiece(allPositions[7][6], new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
         addPiece(allPositions[7][7], new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
-        // Row 7
-        for (int pawn = 0; pawn < 8; ++pawn) {
-            addPiece(allPositions[6][pawn], new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
-        }
     }
 }

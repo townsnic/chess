@@ -69,7 +69,6 @@ public class ChessGame {
             }
             gameBoard = copyBoard(testBoard);
         }
-        //if (validMoves.isEmpty()) return null;
         return validMoves;
     }
 
@@ -81,16 +80,17 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece myPiece = gameBoard.getPiece(move.getStartPosition());
+        // Checks for invalid moves, then makes move
         if (myPiece == null) {
             throw new InvalidMoveException("There is no piece at that start position!");
-        }
-        else if (myPiece.getTeamColor() != turn) {
+        } else if (myPiece.getTeamColor() != turn) {
             throw new InvalidMoveException("It's not your turn!");
         } else if (validMoves(move.getStartPosition()) == null || !validMoves(move.getStartPosition()).contains(move)) {
             if (myPiece.pieceMoves(gameBoard, move.getStartPosition()).contains(move)) {
                 throw new InvalidMoveException("You can't leave your king in check!");
+            } else {
+                throw new InvalidMoveException("Invalid move!");
             }
-            throw new InvalidMoveException("Invalid move!");
         } else {
             gameBoard.movePiece(move);
         }
@@ -150,7 +150,9 @@ public class ChessGame {
      * @return true if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        // If not in check, can't be in checkmate
         if (isInCheck(teamColor)) {
+            // Iterates through every position on the board
             for (int row = 1; row < 9; ++row) {
                 for (int col = 1; col < 9; ++col) {
                     ChessPosition checkPosition = new ChessPosition(row, col);
@@ -161,6 +163,7 @@ public class ChessGame {
 
                         if (piece.getTeamColor() == teamColor) {
                             Collection<ChessMove> validMoves = validMoves(checkPosition);
+                            // Checks all of a piece's valid moves
                             if (validMoves != null) {
                                 for (ChessMove validMove : validMoves) {
                                     ChessBoard testBoard = copyBoard(gameBoard);
@@ -191,7 +194,7 @@ public class ChessGame {
      * @return true if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        // If a color is in check, it cannot be a stalemate
+        // If in check, cannot be stalemate
         if (isInCheck(teamColor)) {
             return false;
         }
@@ -232,6 +235,13 @@ public class ChessGame {
         return gameBoard;
     }
 
+
+    /**
+     * Creates a copy of a given board
+     *
+     * @param sourceBoard the chess board to create a copy of
+     * @return the newly copied chess board
+     */
     public ChessBoard copyBoard(ChessBoard sourceBoard) {
         ChessBoard copyBoard = new ChessBoard();
 
