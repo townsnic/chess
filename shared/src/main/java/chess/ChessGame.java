@@ -206,7 +206,7 @@ public class ChessGame {
 
                     // Checks if the piece can move
                     if (piece.getTeamColor() == teamColor) {
-                        if (validMoves(checkPosition) != null) return false;
+                        if (!validMoves(checkPosition).isEmpty()) return false;
                     }
                 }
             }
