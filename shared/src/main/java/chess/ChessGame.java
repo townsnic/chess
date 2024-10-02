@@ -69,7 +69,7 @@ public class ChessGame {
             }
             gameBoard = copyBoard(testBoard);
         }
-        if (validMoves.isEmpty()) return null;
+        //if (validMoves.isEmpty()) return null;
         return validMoves;
     }
 
