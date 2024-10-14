@@ -10,7 +10,7 @@ The application implements a multiplayer chess server and a command line chess c
 
 ## Sequence Diagram
 
-https://tinyurl.com/ntsequencediagram
+https://tinyurl.com/serverseqdiag
 
 ## Modules
 
