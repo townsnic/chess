@@ -1,6 +1,5 @@
 package dataaccess;
 
-import model.AuthData;
 import model.GameData;
 
 import java.util.Collection;
@@ -35,8 +34,6 @@ public class MemoryGameDAO implements GameDAO {
         if (!gameDataMap.containsKey(gameData.gameID())) {
             throw new DataAccessException("Game ID doesn't exist!");
         }
-        // Fix this
-        GameData dataToUpdate = gameDataMap.get(gameData.gameID());
-
+        gameDataMap.put(gameData.gameID(), gameData);
     }
 }
