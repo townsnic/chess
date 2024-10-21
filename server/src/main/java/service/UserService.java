@@ -22,9 +22,10 @@ public class UserService {
         if (newUser.username() == null || newUser.password() == null || newUser.email() == null) {
             throw new ServiceException("Please provide username, password, and email.");
         }
-        if (userDAO.getUser(newUser.username()) != null) {
-            throw new ServiceException("Username already in use.");
-        }
+        // Figure out what the deal with service/data access exceptions is
+//        if (userDAO.getUser(newUser.username()) != null) {
+//            throw new ServiceException("Username already in use.");
+//        }
         userDAO.createUser(newUser);
         AuthData newAuth = new AuthData(UUID.randomUUID().toString(), newUser.username());
         authDAO.createAuth(newAuth);

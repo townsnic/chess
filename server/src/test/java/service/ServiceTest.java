@@ -33,4 +33,9 @@ public class ServiceTest {
         UserData duplicateUser = new UserData("username", "password2", "newemail@gmail.com");
         Assertions.assertThrows(DataAccessException.class, () -> userService.registerUser(duplicateUser));
     }
+
+    //Login +
+    //Login -
+    //Logout +
+    //Logout -
 }

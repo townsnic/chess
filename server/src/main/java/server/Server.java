@@ -23,6 +23,8 @@ public class Server {
 
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
+        Spark.get("/game", this::list);
         Spark.delete("/db", this::clear);
         Spark.exception(Exception.class, this::exceptionHandler);
 
@@ -45,6 +47,17 @@ public class Server {
         UserData newUser = serializer.fromJson(req.body(), UserData.class);
         AuthData result = userService.loginUser(newUser);
         return serializer.toJson(result);
+    }
+
+    private String logout(Request req, Response res) throws Exception {
+        AuthData userAuth = serializer.fromJson(req.body(), AuthData.class);
+        return serializer.toJson("");
+    }
+
+    private String list(Request req, Response res) throws Exception {
+        AuthData userAuth = serializer.fromJson(req.body(), AuthData.class);
+        // Add game data array to return
+        return serializer.toJson("");
     }
 
     private String clear(Request req, Response res) throws Exception {
