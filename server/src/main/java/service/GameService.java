@@ -8,4 +8,8 @@ public class GameService {
     public GameService(GameDAO gameDAO) {
         this.gameDAO = gameDAO;
     }
+
+    public void clear() {
+        gameDAO.clear();
+    }
 }

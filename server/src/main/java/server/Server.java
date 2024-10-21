@@ -12,7 +12,7 @@ public class Server {
     private final UserDAO userDAO = new MemoryUserDAO();
     private final AuthDAO authDAO = new MemoryAuthDAO();
     private final GameDAO gameDAO = new MemoryGameDAO();
-    private final UserService userService = new UserService(userDAO);
+    private final UserService userService = new UserService(userDAO, authDAO);
     private final AuthService authService = new AuthService(authDAO);
     private final GameService gameService = new GameService(gameDAO);
     private final Gson serializer = new Gson();
@@ -21,8 +21,8 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
-        // Spark.init();
-        Spark.post("/user", this::createUser);
+        Spark.post("/user", this::register);
+        Spark.delete("/db", this::clear);
         Spark.exception(Exception.class, this::exceptionHandler);
 
         Spark.awaitInitialization();
@@ -34,9 +34,16 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private String createUser(Request req, Response res) throws Exception {
-        var newUser = serializer.fromJson(req.body(), UserData.class);
-        var result = userService.registerUser(newUser);
+    private String clear(Request req, Response res) throws Exception {
+        userService.clear();
+        authService.clear();
+        gameService.clear();
+        return serializer.toJson("");
+    }
+
+    private String register(Request req, Response res) throws Exception {
+        UserData newUser = serializer.fromJson(req.body(), UserData.class);
+        AuthData result = userService.registerUser(newUser);
         return serializer.toJson(result);
     }
 

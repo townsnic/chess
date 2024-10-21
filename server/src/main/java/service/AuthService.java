@@ -8,4 +8,8 @@ public class AuthService {
     public AuthService(AuthDAO authDAO) {
         this.authDAO = authDAO;
     }
+
+    public void clear() {
+        authDAO.clear();
+    }
 }
