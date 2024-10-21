@@ -18,7 +18,13 @@ public class UserService {
         userDAO.clear();
     }
 
-    public AuthData registerUser(UserData newUser) throws DataAccessException {
+    public AuthData registerUser(UserData newUser) throws Exception {
+        if (newUser.username() == null || newUser.password() == null || newUser.email() == null) {
+            throw new ServiceException("Please provide username, password, and email.");
+        }
+        if (userDAO.getUser(newUser.username()) != null) {
+            throw new ServiceException("Username already in use.");
+        }
         userDAO.createUser(newUser);
         AuthData newAuth = new AuthData(UUID.randomUUID().toString(), newUser.username());
         authDAO.createAuth(newAuth);
