@@ -1,8 +1,5 @@
 package service;
 
-import chess.ChessMove;
-import chess.ChessPosition;
-import chess.InvalidMoveException;
 import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.Assertions;

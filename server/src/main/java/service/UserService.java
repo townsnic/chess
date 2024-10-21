@@ -25,6 +25,12 @@ public class UserService {
         return newAuth;
     }
 
-    // login
+    public AuthData loginUser(UserData user) throws DataAccessException {
+        userDAO.getUser(user.username());
+        AuthData newAuth = new AuthData(UUID.randomUUID().toString(), user.username());
+        authDAO.createAuth(newAuth);
+        return newAuth;
+    }
+
     // logout
 }

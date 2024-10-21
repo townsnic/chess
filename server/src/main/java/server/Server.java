@@ -22,6 +22,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         Spark.post("/user", this::register);
+        Spark.post("/session", this::login);
         Spark.delete("/db", this::clear);
         Spark.exception(Exception.class, this::exceptionHandler);
 
@@ -34,17 +35,23 @@ public class Server {
         Spark.awaitStop();
     }
 
+    private String register(Request req, Response res) throws Exception {
+        UserData newUser = serializer.fromJson(req.body(), UserData.class);
+        AuthData result = userService.registerUser(newUser);
+        return serializer.toJson(result);
+    }
+
+    private String login(Request req, Response res) throws Exception {
+        UserData newUser = serializer.fromJson(req.body(), UserData.class);
+        AuthData result = userService.loginUser(newUser);
+        return serializer.toJson(result);
+    }
+
     private String clear(Request req, Response res) throws Exception {
         userService.clear();
         authService.clear();
         gameService.clear();
         return serializer.toJson("");
-    }
-
-    private String register(Request req, Response res) throws Exception {
-        UserData newUser = serializer.fromJson(req.body(), UserData.class);
-        AuthData result = userService.registerUser(newUser);
-        return serializer.toJson(result);
     }
 
     private void exceptionHandler(Exception ex, Request req, Response res) {
