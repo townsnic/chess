@@ -4,15 +4,14 @@ import dataaccess.*;
 import model.*;
 
 import java.util.Objects;
-import java.util.UUID;
 
 public class UserService {
     private final UserDAO userDAO;
-    private final AuthDAO authDAO;
+    private final AuthService authService;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
-        this.authDAO = authDAO;
+        authService = new AuthService(authDAO);
     }
 
     public void clear() {
@@ -27,9 +26,7 @@ public class UserService {
             throw new ServiceException(403, "Error: already taken.");
         }
         userDAO.createUser(newUser);
-        AuthData newAuth = new AuthData(UUID.randomUUID().toString(), newUser.username());
-        authDAO.createAuth(newAuth);
-        return newAuth;
+        return authService.createAuth(newUser.username());
     }
 
     public AuthData loginUser(UserData user) throws ServiceException {
@@ -43,9 +40,7 @@ public class UserService {
             throw new ServiceException(401, "Error: unauthorized");
         }
         userDAO.getUser(user.username());
-        AuthData newAuth = new AuthData(UUID.randomUUID().toString(), user.username());
-        authDAO.createAuth(newAuth);
-        return newAuth;
+        return authService.createAuth(user.username());
     }
 
 //    public void logoutUser(AuthData authdata) throws ServiceException {

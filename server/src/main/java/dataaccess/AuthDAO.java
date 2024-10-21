@@ -7,5 +7,5 @@ public interface AuthDAO extends DataAccess {
 
     AuthData getAuth(String authToken);
 
-    void deleteAuth(String authData);
+    void deleteAuth(String authToken);
 }
