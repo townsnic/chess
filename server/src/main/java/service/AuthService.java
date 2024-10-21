@@ -22,7 +22,11 @@ public class AuthService {
         return newAuth;
     }
 
-    public void deleteAuth(AuthData authData) {
-        authDAO.deleteAuth(authData.authToken());
+    public AuthData getAuth(String authToken) {
+        return authDAO.getAuth(authToken);
+    }
+
+    public void deleteAuth(String authToken) {
+        authDAO.deleteAuth(authToken);
     }
 }

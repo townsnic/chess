@@ -39,11 +39,13 @@ public class UserService {
         if (!Objects.equals(userDAO.getUser(user.username()).password(), user.password())) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        userDAO.getUser(user.username());
         return authService.createAuth(user.username());
     }
 
-//    public void logoutUser(AuthData authdata) throws ServiceException {
-//
-//    }
+    public void logoutUser(String authToken) throws ServiceException {
+        if (authService.getAuth(authToken) == null) {
+            throw new ServiceException(401, "Error: unauthorized");
+        }
+        authService.deleteAuth(authToken);
+    }
 }

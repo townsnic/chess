@@ -51,9 +51,10 @@ public class Server {
     }
 
     private String logout(Request req, Response res) throws Exception {
-        AuthData userAuth = serializer.fromJson(req.body(), AuthData.class);
-        //userService.logoutUser(userAuth);
-        return serializer.toJson("");
+        String authToken = req.headers("authorization");
+        userService.logoutUser(authToken);
+        res.status(200);
+        return "";
     }
 
     private String list(Request req, Response res) throws Exception {
