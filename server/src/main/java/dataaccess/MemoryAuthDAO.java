@@ -11,24 +11,15 @@ public class MemoryAuthDAO implements AuthDAO {
         authDataMap.clear();
     }
 
-    public void createAuth(AuthData authData) throws DataAccessException {
-        if (authDataMap.containsKey(authData.authToken())) {
-            throw new DataAccessException("Token already exists!");
-        }
+    public void createAuth(AuthData authData) {
         authDataMap.put(authData.authToken(), authData);
     }
 
-    public AuthData getAuth(String authToken) throws DataAccessException {
-        if (!authDataMap.containsKey(authToken)) {
-            throw new DataAccessException("Token doesn't exist!");
-        }
+    public AuthData getAuth(String authToken) {
         return authDataMap.get(authToken);
     }
 
-    public void deleteAuth(String authToken) throws DataAccessException {
-        if (!authDataMap.containsKey(authToken)) {
-            throw new DataAccessException("Token doesn't exist!");
-        }
+    public void deleteAuth(String authToken) {
         authDataMap.remove(authToken);
     }
 }

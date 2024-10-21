@@ -11,17 +11,11 @@ public class MemoryUserDAO implements UserDAO {
         userDataMap.clear();
     }
 
-    public void createUser(UserData userData) throws DataAccessException {
-        if (userDataMap.containsKey(userData.username())) {
-            throw new DataAccessException("Username already exists!");
-        }
+    public void createUser(UserData userData) {
         userDataMap.put(userData.username(), userData);
     }
 
-    public UserData getUser(String username) throws DataAccessException {
-        if (!userDataMap.containsKey(username)) {
-            throw new DataAccessException("Username doesn't exist!");
-        }
+    public UserData getUser(String username) {
         return userDataMap.get(username);
     }
 }

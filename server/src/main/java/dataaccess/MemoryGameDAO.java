@@ -12,17 +12,11 @@ public class MemoryGameDAO implements GameDAO {
         gameDataMap.clear();
     }
 
-    public void createGame(GameData gameData) throws DataAccessException {
-        if (gameDataMap.containsKey(gameData.gameID())) {
-            throw new DataAccessException("Game ID already exists!");
-        }
+    public void createGame(GameData gameData) {
         gameDataMap.put(gameData.gameID(), gameData);
     }
 
-    public GameData getGame(int gameID) throws DataAccessException {
-        if (!gameDataMap.containsKey(gameID)) {
-            throw new DataAccessException("Game ID doesn't exist!");
-        }
+    public GameData getGame(int gameID) {
         return gameDataMap.get(gameID);
     }
 
@@ -30,10 +24,7 @@ public class MemoryGameDAO implements GameDAO {
         return gameDataMap.values();
     }
 
-    public void updateGame(GameData gameData) throws DataAccessException {
-        if (!gameDataMap.containsKey(gameData.gameID())) {
-            throw new DataAccessException("Game ID doesn't exist!");
-        }
+    public void updateGame(GameData gameData) {
         gameDataMap.put(gameData.gameID(), gameData);
     }
 }
