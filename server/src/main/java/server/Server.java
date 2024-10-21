@@ -27,6 +27,7 @@ public class Server {
         Spark.get("/game", this::list);
         Spark.delete("/db", this::clear);
         Spark.exception(Exception.class, this::exceptionHandler);
+        Spark.exception(ServiceException.class, this::serviceExceptionHandler);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -51,7 +52,7 @@ public class Server {
 
     private String logout(Request req, Response res) throws Exception {
         AuthData userAuth = serializer.fromJson(req.body(), AuthData.class);
-        userService.logoutUser(userAuth);
+        //userService.logoutUser(userAuth);
         return serializer.toJson("");
     }
 
@@ -71,6 +72,12 @@ public class Server {
 
     private void exceptionHandler(Exception ex, Request req, Response res) {
         res.status(500);
+        res.body(serializer.toJson(Map.of("message", ex.getMessage())));
+        ex.printStackTrace(System.out);
+    }
+
+    private void serviceExceptionHandler(ServiceException ex, Request req, Response res) {
+        res.status(ex.StatusCode());
         res.body(serializer.toJson(Map.of("message", ex.getMessage())));
         ex.printStackTrace(System.out);
     }
