@@ -1,5 +1,8 @@
 package service;
 
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
 import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.Assertions;
@@ -20,9 +23,17 @@ public class ServiceTest {
     }
 
     @Test
-    public void registerUser() throws Exception {
+    public void registerUserSuccess() throws Exception {
         UserData newUser = new UserData("username", "password", "email@gmail.com");
         AuthData registrationResult = userService.registerUser(newUser);
         Assertions.assertEquals(newUser, userDAO.getUser(newUser.username()));
+    }
+
+    @Test
+    public void registerUserFailure() throws Exception {
+        UserData newUser = new UserData("username", "password1", "email@gmail.com");
+        AuthData registrationResult = userService.registerUser(newUser);
+        UserData duplicateUser = new UserData("username", "password2", "newemail@gmail.com");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.registerUser(duplicateUser));
     }
 }
