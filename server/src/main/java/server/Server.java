@@ -51,6 +51,7 @@ public class Server {
 
     private String logout(Request req, Response res) throws Exception {
         AuthData userAuth = serializer.fromJson(req.body(), AuthData.class);
+        userService.logoutUser(userAuth);
         return serializer.toJson("");
     }
 
@@ -64,7 +65,8 @@ public class Server {
         userService.clear();
         authService.clear();
         gameService.clear();
-        return serializer.toJson("");
+        res.status(200);
+        return "";
     }
 
     private void exceptionHandler(Exception ex, Request req, Response res) {
