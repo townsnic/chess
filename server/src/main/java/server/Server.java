@@ -7,6 +7,7 @@ import model.*;
 import spark.*;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
@@ -63,7 +64,7 @@ public class Server {
     private String list(Request req, Response res) throws Exception {
         String authToken = req.headers("authorization");
         Collection<GameData> result = gameService.listGames(authToken);
-        return serializer.toJson(result);
+        return serializer.toJson(Map.of("games", result));
     }
 
     private String create(Request req, Response res) throws Exception {
