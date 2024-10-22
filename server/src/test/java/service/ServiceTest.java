@@ -74,4 +74,19 @@ public class ServiceTest {
         AuthData badAuth = new AuthData("badAuthToken", newUser.username());
         Assertions.assertThrows(ServiceException.class, () -> userService.logoutUser(badAuth.authToken()));
     }
+
+    @Test
+    public void clearUserTest() throws Exception {
+        userService.clear();
+        UserData newUser1 = new UserData("username1", "password1", "email1@gmail.com");
+        UserData newUser2 = new UserData("username2", "password2", "email2@gmail.com");
+        UserData newUser3 = new UserData("username3", "password3", "email3@gmail.com");
+        userService.registerUser(newUser1);
+        userService.registerUser(newUser2);
+        userService.registerUser(newUser3);
+        userService.clear();
+        Assertions.assertNull(userDAO.getUser(newUser1.username()));
+        Assertions.assertNull(userDAO.getUser(newUser2.username()));
+        Assertions.assertNull(userDAO.getUser(newUser3.username()));
+    }
 }
