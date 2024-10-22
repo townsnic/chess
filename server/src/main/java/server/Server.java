@@ -7,7 +7,6 @@ import model.*;
 import spark.*;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
