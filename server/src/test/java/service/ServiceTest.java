@@ -169,4 +169,21 @@ public class ServiceTest {
         Assertions.assertThrows(ServiceException.class, () ->gameService.joinGame(registrationResult2.authToken(),
                 new JoinRequest(ChessGame.TeamColor.WHITE, resultGame.gameID())));
     }
+
+    @Test
+    public void clearGameTest() throws Exception {
+        gameService.clear();
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        GameData requestGame1 = new GameData(0, null, null, "game1", null);
+        GameData requestGame2 = new GameData(0, null, null, "game2", null);
+        GameData requestGame3 = new GameData(0, null, null, "game3", null);
+        AuthData registrationResult = userService.registerUser(newUser);
+        GameData resultGame1 = gameService.createGame(registrationResult.authToken(), requestGame1);
+        GameData resultGame2 = gameService.createGame(registrationResult.authToken(), requestGame2);
+        GameData resultGame3 = gameService.createGame(registrationResult.authToken(), requestGame3);
+        gameService.clear();
+        Assertions.assertNull(gameDAO.getGame(resultGame1.gameID()));
+        Assertions.assertNull(gameDAO.getGame(resultGame2.gameID()));
+        Assertions.assertNull(gameDAO.getGame(resultGame3.gameID()));
+    }
 }
