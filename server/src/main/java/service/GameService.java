@@ -3,7 +3,7 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import model.*;
-import server.GameRequest;
+import server.JoinRequest;
 
 import java.util.Collection;
 
@@ -29,25 +29,26 @@ public class GameService {
     }
 
     public GameData createGame(String authToken, GameData gameData) throws ServiceException {
-        if (gameData.gameName() == null) {
+        String gameName = gameData.gameName();
+
+        if (gameName == null) {
             throw new ServiceException(400, "Error: bad request");
         }
         if (authDAO.getAuth(authToken) == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }
         GameData newGame = new GameData((gameDAO.listGames().size() + 1),
-                null, null, gameData.gameName(), new ChessGame());
+                null, null, gameName, new ChessGame());
         gameDAO.createGame(newGame);
         return newGame;
     }
 
-    public void joinGame(String authToken, GameRequest gameRequest) throws ServiceException {
-        ChessGame.TeamColor playerColor = gameRequest.playerColor();
-        int gameID = gameRequest.gameID();
+    public void joinGame(String authToken, JoinRequest joinRequest) throws ServiceException {
+        ChessGame.TeamColor playerColor = joinRequest.playerColor();
+        int gameID = joinRequest.gameID();
         GameData gameToJoin = gameDAO.getGame(gameID);
 
-        if (gameRequest.playerColor() != ChessGame.TeamColor.WHITE &&
-                gameRequest.playerColor() != ChessGame.TeamColor.BLACK) {
+        if (playerColor != ChessGame.TeamColor.WHITE && playerColor != ChessGame.TeamColor.BLACK) {
             throw new ServiceException(400, "Error: bad request");
         }
         if (gameToJoin == null) {
@@ -67,13 +68,14 @@ public class GameService {
         }
 
         String username = authDAO.getAuth(authToken).username();
+        String gameName = gameToJoin.gameName();
+        ChessGame game = gameToJoin.game();
         GameData updatedGame;
+
         if (playerColor == ChessGame.TeamColor.WHITE) {
-            updatedGame = new GameData(gameID, username,
-                    gameToJoin.blackUsername(), gameToJoin.gameName(), gameToJoin.game());
+            updatedGame = new GameData(gameID, username, gameToJoin.blackUsername(), gameName, game);
         } else {
-            updatedGame = new GameData(gameID, gameToJoin.whiteUsername(),
-                    username, gameToJoin.gameName(), gameToJoin.game());
+            updatedGame = new GameData(gameID, gameToJoin.whiteUsername(), username, gameName, game);
         }
         gameDAO.updateGame(updatedGame);
     }

@@ -20,24 +20,28 @@ public class UserService {
     }
 
     public AuthData registerUser(UserData newUser) throws ServiceException {
-        if (newUser.username() == null || newUser.password() == null || newUser.email() == null) {
+        String username = newUser.username();
+
+        if (username == null || newUser.password() == null || newUser.email() == null) {
             throw new ServiceException(400, "Error: bad request.");
         }
-        if (userDAO.getUser(newUser.username()) != null) {
+        if (userDAO.getUser(username) != null) {
             throw new ServiceException(403, "Error: already taken.");
         }
         userDAO.createUser(newUser);
-        return authDAO.createAuth(newUser.username());
+        return authDAO.createAuth(username);
     }
 
     public AuthData loginUser(UserData user) throws ServiceException {
-        if (userDAO.getUser(user.username()) == null) {
+        String username = user.username();
+
+        if (userDAO.getUser(username) == null) {
             throw new ServiceException(401, "Error: unauthorized.");
         }
-        if (!Objects.equals(userDAO.getUser(user.username()).password(), user.password())) {
+        if (!Objects.equals(userDAO.getUser(username).password(), user.password())) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        return authDAO.createAuth(user.username());
+        return authDAO.createAuth(username);
     }
 
     public void logoutUser(String authToken) throws ServiceException {

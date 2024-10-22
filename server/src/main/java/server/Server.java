@@ -55,8 +55,7 @@ public class Server {
     private String logout(Request req, Response res) throws Exception {
         String authToken = req.headers("authorization");
         userService.logoutUser(authToken);
-        res.status(200);
-        return "";
+        return "{}";
     }
 
     private String list(Request req, Response res) throws Exception {
@@ -74,17 +73,15 @@ public class Server {
 
     private String join(Request req, Response res) throws Exception {
         String authToken = req.headers("authorization");
-        GameRequest gameRequest = serializer.fromJson(req.body(), GameRequest.class);
-        gameService.joinGame(authToken, gameRequest);
-        res.status(200);
-        return "";
+        JoinRequest joinRequest = serializer.fromJson(req.body(), JoinRequest.class);
+        gameService.joinGame(authToken, joinRequest);
+        return "{}";
     }
 
     private String clear(Request req, Response res) throws Exception {
         userService.clear();
         gameService.clear();
-        res.status(200);
-        return "";
+        return "{}";
     }
 
     private void exceptionHandler(Exception ex, Request req, Response res) {
