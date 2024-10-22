@@ -6,6 +6,7 @@ import service.*;
 import model.*;
 import spark.*;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class Server {
@@ -14,7 +15,7 @@ public class Server {
     private final GameDAO gameDAO = new MemoryGameDAO();
     private final UserService userService = new UserService(userDAO, authDAO);
     private final AuthService authService = new AuthService(authDAO);
-    private final GameService gameService = new GameService(gameDAO);
+    private final GameService gameService = new GameService(gameDAO, authDAO);
     private final Gson serializer = new Gson();
 
     public int run(int desiredPort) {
@@ -23,8 +24,9 @@ public class Server {
 
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
-        Spark.delete("/session", this::logout);
+        Spark.post("/game", this::create);
         Spark.get("/game", this::list);
+        Spark.delete("/session", this::logout);
         Spark.delete("/db", this::clear);
         Spark.exception(Exception.class, this::exceptionHandler);
         Spark.exception(ServiceException.class, this::serviceExceptionHandler);
@@ -45,8 +47,8 @@ public class Server {
     }
 
     private String login(Request req, Response res) throws Exception {
-        UserData newUser = serializer.fromJson(req.body(), UserData.class);
-        AuthData result = userService.loginUser(newUser);
+        UserData user = serializer.fromJson(req.body(), UserData.class);
+        AuthData result = userService.loginUser(user);
         return serializer.toJson(result);
     }
 
@@ -58,9 +60,16 @@ public class Server {
     }
 
     private String list(Request req, Response res) throws Exception {
-        AuthData userAuth = serializer.fromJson(req.body(), AuthData.class);
-        // Add game data array to return
-        return serializer.toJson("");
+        String authToken = req.headers("authorization");
+        Collection<GameData> result = gameService.listGames(authToken);
+        return serializer.toJson(result);
+    }
+
+    private String create(Request req, Response res) throws Exception {
+        String authToken = req.headers("authorization");
+        GameData gameData = serializer.fromJson(req.body(), GameData.class);
+        GameData result = gameService.createGame(authToken, gameData);
+        return serializer.toJson(result);
     }
 
     private String clear(Request req, Response res) throws Exception {

@@ -30,9 +30,6 @@ public class UserService {
     }
 
     public AuthData loginUser(UserData user) throws ServiceException {
-        if (user.username() == null || user.password() == null) {
-            throw new ServiceException(500, "Please provide username and password.");
-        }
         if (userDAO.getUser(user.username()) == null) {
             throw new ServiceException(401, "Error: unauthorized.");
         }
