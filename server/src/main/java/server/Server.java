@@ -26,6 +26,7 @@ public class Server {
         Spark.post("/session", this::login);
         Spark.post("/game", this::create);
         Spark.get("/game", this::list);
+        Spark.put("/game", this::join);
         Spark.delete("/session", this::logout);
         Spark.delete("/db", this::clear);
         Spark.exception(Exception.class, this::exceptionHandler);
@@ -70,6 +71,14 @@ public class Server {
         GameData gameData = serializer.fromJson(req.body(), GameData.class);
         GameData result = gameService.createGame(authToken, gameData);
         return serializer.toJson(result);
+    }
+
+    private String join(Request req, Response res) throws Exception {
+        String authToken = req.headers("authorization");
+        GameRequest gameRequest = serializer.fromJson(req.body(), GameRequest.class);
+        gameService.joinGame(authToken, gameRequest);
+        res.status(200);
+        return "";
     }
 
     private String clear(Request req, Response res) throws Exception {
