@@ -7,7 +7,7 @@ import java.util.HashMap;
 public class MemoryUserDAO implements UserDAO {
     final private HashMap<String, UserData> userDataMap = new HashMap<>();
 
-    public void clear() {
+    public void clearUser() {
         userDataMap.clear();
     }
 

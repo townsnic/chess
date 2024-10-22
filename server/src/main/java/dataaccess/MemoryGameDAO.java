@@ -8,7 +8,7 @@ import java.util.HashMap;
 public class MemoryGameDAO implements GameDAO {
     final private HashMap<Integer, GameData> gameDataMap = new HashMap<>();
 
-    public void clear() {
+    public void clearGame() {
         gameDataMap.clear();
     }
 

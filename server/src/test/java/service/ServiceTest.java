@@ -9,10 +9,9 @@ import org.junit.jupiter.api.Test;
 public class ServiceTest {
 
     static private UserDAO userDAO;
-    static private AuthDAO authDAO;
     static private GameDAO gameDAO;
+    static private AuthDAO authDAO;
     static private UserService userService;
-    static private AuthService authService;
     static private GameService gameService;
 
     @BeforeAll
@@ -21,7 +20,6 @@ public class ServiceTest {
         authDAO = new MemoryAuthDAO();
         gameDAO = new MemoryGameDAO();
         userService = new UserService(userDAO, authDAO);
-        authService = new AuthService(authDAO);
         gameService = new GameService(gameDAO, authDAO);
     }
 

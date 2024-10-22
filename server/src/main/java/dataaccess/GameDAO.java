@@ -4,7 +4,9 @@ import model.GameData;
 
 import java.util.Collection;
 
-public interface GameDAO extends DataAccess {
+public interface GameDAO {
+    void clearGame();
+
     void createGame(GameData gameData);
 
     GameData getGame(int gameID);

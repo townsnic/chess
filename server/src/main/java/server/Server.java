@@ -11,10 +11,9 @@ import java.util.Map;
 
 public class Server {
     private final UserDAO userDAO = new MemoryUserDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
     private final GameDAO gameDAO = new MemoryGameDAO();
+    private final AuthDAO authDAO = new MemoryAuthDAO();
     private final UserService userService = new UserService(userDAO, authDAO);
-    private final AuthService authService = new AuthService(authDAO);
     private final GameService gameService = new GameService(gameDAO, authDAO);
     private final Gson serializer = new Gson();
 
@@ -83,7 +82,6 @@ public class Server {
 
     private String clear(Request req, Response res) throws Exception {
         userService.clear();
-        authService.clear();
         gameService.clear();
         res.status(200);
         return "";
