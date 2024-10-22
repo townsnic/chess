@@ -1,13 +1,16 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.JoinRequest;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class ServiceTest {
 
@@ -137,5 +140,33 @@ public class ServiceTest {
         GameData requestGame = new GameData(0, null, null, "game1", null);
         AuthData registrationResult = userService.registerUser(newUser);
         Assertions.assertThrows(ServiceException.class, () ->gameService.createGame("badToken", requestGame));
+    }
+
+    @Test
+    public void joinGameSuccess() throws Exception {
+        UserData newUser1 = new UserData("username1", "password1", "email1@gmail.com");
+        UserData newUser2 = new UserData("username2", "password2", "email2@gmail.com");
+        GameData requestGame = new GameData(0, null, null, "game1", null);
+        AuthData registrationResult1 = userService.registerUser(newUser1);
+        AuthData registrationResult2 = userService.registerUser(newUser2);
+        GameData resultGame = gameService.createGame(registrationResult1.authToken(), requestGame);
+        gameService.joinGame(registrationResult1.authToken(), new JoinRequest(ChessGame.TeamColor.WHITE, resultGame.gameID()));
+        gameService.joinGame(registrationResult2.authToken(), new JoinRequest(ChessGame.TeamColor.BLACK, resultGame.gameID()));
+        Assertions.assertTrue(Objects.equals(gameDAO.getGame(resultGame.gameID()).whiteUsername(), newUser1.username()) &&
+                Objects.equals(gameDAO.getGame(resultGame.gameID()).blackUsername(), newUser2.username()));
+    }
+
+    @Test
+    public void joinGameFailure() throws Exception {
+        UserData newUser1 = new UserData("username1", "password1", "email1@gmail.com");
+        UserData newUser2 = new UserData("username2", "password2", "email2@gmail.com");
+        GameData requestGame = new GameData(0, null, null, "game1", null);
+        AuthData registrationResult1 = userService.registerUser(newUser1);
+        AuthData registrationResult2 = userService.registerUser(newUser2);
+        GameData resultGame = gameService.createGame(registrationResult1.authToken(), requestGame);
+        gameService.joinGame(registrationResult1.authToken(), new JoinRequest(ChessGame.TeamColor.WHITE, resultGame.gameID()));
+
+        Assertions.assertThrows(ServiceException.class, () ->gameService.joinGame(registrationResult2.authToken(),
+                new JoinRequest(ChessGame.TeamColor.WHITE, resultGame.gameID())));
     }
 }
