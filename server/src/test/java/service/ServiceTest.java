@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ServiceTest {
@@ -21,6 +22,12 @@ public class ServiceTest {
         gameDAO = new MemoryGameDAO();
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
+    }
+
+    @BeforeEach
+    public void clear() {
+        userService.clear();
+        gameService.clear();
     }
 
     @Test
@@ -88,5 +95,23 @@ public class ServiceTest {
         Assertions.assertNull(userDAO.getUser(newUser1.username()));
         Assertions.assertNull(userDAO.getUser(newUser2.username()));
         Assertions.assertNull(userDAO.getUser(newUser3.username()));
+    }
+
+    @Test
+    public void createGameSuccess() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        GameData requestGame = new GameData(0, null, null, "game1", null);
+        AuthData registrationResult = userService.registerUser(newUser);
+        GameData resultGame = gameService.createGame(registrationResult.authToken(), requestGame);
+        Assertions.assertEquals(requestGame.gameName(), gameDAO.getGame(resultGame.gameID()).gameName());
+    }
+
+    @Test
+    public void createGameFailure() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        GameData requestGame = new GameData(0, null, null, null, null);
+        AuthData registrationResult = userService.registerUser(newUser);
+        Assertions.assertThrows(ServiceException.class, () ->
+                gameService.createGame(registrationResult.authToken(), requestGame));
     }
 }
