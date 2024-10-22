@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
+
 public class ServiceTest {
 
     static private UserDAO userDAO;
@@ -113,5 +115,27 @@ public class ServiceTest {
         AuthData registrationResult = userService.registerUser(newUser);
         Assertions.assertThrows(ServiceException.class, () ->
                 gameService.createGame(registrationResult.authToken(), requestGame));
+    }
+
+    @Test
+    public void listGameSuccess() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        GameData requestGame1 = new GameData(0, null, null, "game1", null);
+        GameData requestGame2 = new GameData(0, null, null, "game2", null);
+        GameData requestGame3 = new GameData(0, null, null, "game3", null);
+        AuthData registrationResult = userService.registerUser(newUser);
+        GameData resultGame1 = gameService.createGame(registrationResult.authToken(), requestGame1);
+        GameData resultGame2 = gameService.createGame(registrationResult.authToken(), requestGame2);
+        GameData resultGame3 = gameService.createGame(registrationResult.authToken(), requestGame3);
+        Collection<GameData> games = gameService.listGames(registrationResult.authToken());
+        Assertions.assertTrue(games.contains(resultGame1) && games.contains(resultGame2) && games.contains(resultGame3));
+    }
+
+    @Test
+    public void listGameFailure() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        GameData requestGame = new GameData(0, null, null, "game1", null);
+        AuthData registrationResult = userService.registerUser(newUser);
+        Assertions.assertThrows(ServiceException.class, () ->gameService.createGame("badToken", requestGame));
     }
 }
