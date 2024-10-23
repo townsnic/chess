@@ -46,59 +46,7 @@ public class ChessBoard {
         String[][] pieces = new String[8][8];
         for (int row = 0; row < 8; ++row) {
             for (int col = 0; col < 8; ++col) {
-                if (squares[row][col] == null) {
-                    pieces[row][col] = " ";
-                }
-                else {
-                    switch (squares[row][col].getTeamColor()) {
-                        case WHITE:
-                            switch (squares[row][col].getPieceType()) {
-                                case KING:
-                                    pieces[row][col] = "K";
-                                    break;
-                                case QUEEN:
-                                    pieces[row][col] = "Q";
-                                    break;
-                                case BISHOP:
-                                    pieces[row][col] = "B";
-                                    break;
-                                case KNIGHT:
-                                    pieces[row][col] = "N";
-                                    break;
-                                case ROOK:
-                                    pieces[row][col] = "R";
-                                    break;
-                                case PAWN:
-                                    pieces[row][col] = "P";
-                                    break;
-                            }
-                            break;
-                        case BLACK:
-                            switch (squares[row][col].getPieceType()) {
-                                case KING:
-                                    pieces[row][col] = "k";
-                                    break;
-                                case QUEEN:
-                                    pieces[row][col] = "q";
-                                    break;
-                                case BISHOP:
-                                    pieces[row][col] = "b";
-                                    break;
-                                case KNIGHT:
-                                    pieces[row][col] = "n";
-                                    break;
-                                case ROOK:
-                                    pieces[row][col] = "r";
-                                    break;
-                                case PAWN:
-                                    pieces[row][col] = "p";
-                                    break;
-                            }
-                            break;
-                    }
-                }
-
-
+                pieces[row][col] = assignCharacters(row, col);
             }
         }
         return String.format("""
@@ -120,6 +68,32 @@ public class ChessBoard {
                 pieces[1][1], pieces[1][2], pieces[1][3], pieces[1][4], pieces[1][5], pieces[1][6], pieces[1][7],
                 pieces[0][0], pieces[0][1], pieces[0][2], pieces[0][3], pieces[0][4], pieces[0][5], pieces[0][6],
                 pieces[0][7]);
+    }
+
+    private String assignCharacters(int row, int col) {
+        if (squares[row][col] == null) {
+            return " ";
+        }
+        else {
+            return switch (squares[row][col].getTeamColor()) {
+                case WHITE -> switch (squares[row][col].getPieceType()) {
+                    case KING -> "K";
+                    case QUEEN -> "Q";
+                    case BISHOP -> "B";
+                    case KNIGHT -> "N";
+                    case ROOK -> "R";
+                    case PAWN -> "P";
+                };
+                case BLACK -> switch (squares[row][col].getPieceType()) {
+                    case KING -> "k";
+                    case QUEEN -> "q";
+                    case BISHOP -> "b";
+                    case KNIGHT -> "n";
+                    case ROOK -> "r";
+                    case PAWN -> "p";
+                };
+            };
+        }
     }
 
     /**

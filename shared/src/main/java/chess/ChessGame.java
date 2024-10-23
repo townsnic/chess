@@ -97,6 +97,22 @@ public class ChessGame {
         return validMoves;
     }
 
+    private boolean checkValidMoves(Collection<ChessMove> validMoves, TeamColor teamColor) {
+        if (validMoves != null) {
+            for (ChessMove validMove : validMoves) {
+                ChessBoard testBoard = copyBoard(gameBoard);
+                gameBoard.movePiece(validMove);
+
+                // If a move removes the king from check, not checkmate
+                if (!isInCheck(teamColor)) {
+                    return false;
+                }
+                gameBoard = copyBoard(testBoard);
+            }
+        }
+        return true;
+    }
+
     /**
      * Makes a move in a chess game
      *
@@ -140,27 +156,17 @@ public class ChessGame {
                 ChessPosition checkPosition = new ChessPosition(row, col);
 
                 // Ensures a space is occupied by an enemy piece
-                if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition)) {
-                    ChessPiece piece = gameBoard.getPiece(checkPosition);
-                    if (piece.getTeamColor() != teamColor) {
-                        Collection<ChessMove> legalMoves = piece.pieceMoves(gameBoard, checkPosition);
+                if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition) &&
+                        (gameBoard.getPiece(checkPosition).getTeamColor() != teamColor)) {
+                    Collection<ChessMove> legalMoves = gameBoard.getPiece(checkPosition).pieceMoves(gameBoard, checkPosition);
 
-                        // Checks if the piece is a pawn to account for promotions
-                        if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
-                            // Determines if the piece can legally attack the king
-                            if (legalMoves.contains(new ChessMove(checkPosition, kingSpace, null))) {
-                                return true;
-                            }
-                        } else {
-                            // Determines if the pawn can legally attack the king
-                            if (legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.QUEEN)) ||
-                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.ROOK)) ||
-                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.BISHOP)) ||
-                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.KNIGHT)) ||
-                                    legalMoves.contains(new ChessMove(checkPosition, kingSpace, null))) {
-                                return true;
-                            }
-                        }
+                    // Determines if the piece can legally attack the king
+                    if (legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.QUEEN)) ||
+                            legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.ROOK)) ||
+                            legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.BISHOP)) ||
+                            legalMoves.contains(new ChessMove(checkPosition, kingSpace, ChessPiece.PieceType.KNIGHT)) ||
+                            legalMoves.contains(new ChessMove(checkPosition, kingSpace, null))) {
+                        return true;
                     }
                 }
             }
@@ -183,25 +189,11 @@ public class ChessGame {
                     ChessPosition checkPosition = new ChessPosition(row, col);
 
                     // Ensures a space is occupied by a team piece
-                    if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition)) {
-                        ChessPiece piece = gameBoard.getPiece(checkPosition);
-
-                        if (piece.getTeamColor() == teamColor) {
-                            Collection<ChessMove> validMoves = validMoves(checkPosition);
-                            // Checks all of a piece's valid moves
-                            if (validMoves != null) {
-                                for (ChessMove validMove : validMoves) {
-                                    ChessBoard testBoard = copyBoard(gameBoard);
-                                    gameBoard.movePiece(validMove);
-
-                                    // If a move removes the king from check, not checkmate
-                                    if (!isInCheck(teamColor)) {
-                                        return false;
-                                    }
-                                    gameBoard = copyBoard(testBoard);
-                                }
-                            }
-                        }
+                    if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition) &&
+                            gameBoard.getPiece(checkPosition).getTeamColor() == teamColor) {
+                        Collection<ChessMove> validMoves = validMoves(checkPosition);
+                        // Checks all of a piece's valid moves
+                        return checkValidMoves(validMoves, teamColor);
                     }
                 }
             }
@@ -229,13 +221,11 @@ public class ChessGame {
                 ChessPosition checkPosition = new ChessPosition(row, col);
 
                 // Ensures a space is occupied by a team piece
-                if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition)) {
-                    ChessPiece piece = gameBoard.getPiece(checkPosition);
-
+                if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition) &&
+                        gameBoard.getPiece(checkPosition).getTeamColor() == teamColor) {
                     // Checks if the piece can move
-                    if (piece.getTeamColor() == teamColor) {
-                        if (!validMoves(checkPosition).isEmpty()) { return false; }
-                    }
+                    if (!validMoves(checkPosition).isEmpty()) { return false; }
+
                 }
             }
         }
