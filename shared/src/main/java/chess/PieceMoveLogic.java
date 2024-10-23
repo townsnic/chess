@@ -238,4 +238,18 @@ public class PieceMoveLogic {
             return asFarAsPossible(board, myPiece, myPosition, startRow, startCol, rowIncrement, colIncrement);
         }
     }
+
+    protected Collection<ChessMove> calculateValidMoves(Direction[] possibleDirections, ChessPiece myPiece,
+                                                        ChessPosition myPosition, ChessBoard board) {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        int startPositionRow = myPosition.getRow();
+        int startPositionCol = myPosition.getColumn();
+
+        for (Direction possibleDirection : possibleDirections) {
+            validMoves.addAll(testDirection(board, startPositionRow,
+                    startPositionCol, myPosition, myPiece, possibleDirection));
+        }
+
+        return validMoves;
+    }
 }

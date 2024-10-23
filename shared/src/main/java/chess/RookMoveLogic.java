@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -19,19 +18,8 @@ public class RookMoveLogic extends PieceMoveLogic {
      */
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece myPiece) {
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
-        int startPositionRow = myPosition.getRow();
-        int startPositionCol = myPosition.getColumn();
-
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.UP));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.DOWN));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.LEFT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.RIGHT));
-
-        return validMoves;
+        // Directions a rook can move
+        Direction[] possibleDirections = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
+        return calculateValidMoves(possibleDirections, myPiece, myPosition, board);
     }
 }

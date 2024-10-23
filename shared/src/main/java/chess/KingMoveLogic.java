@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -19,27 +18,9 @@ public class KingMoveLogic extends PieceMoveLogic {
      */
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece myPiece) {
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
-        int startPositionRow = myPosition.getRow();
-        int startPositionCol = myPosition.getColumn();
-
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.UP));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.DOWN));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.LEFT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.RIGHT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.UP_AND_LEFT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.UP_AND_RIGHT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.DOWN_AND_LEFT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.DOWN_AND_RIGHT));
-
-        return validMoves;
+        // Directions a king can move
+        Direction[] possibleDirections = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT,
+        Direction.UP_AND_LEFT, Direction.UP_AND_RIGHT, Direction.DOWN_AND_LEFT, Direction.DOWN_AND_RIGHT};
+        return calculateValidMoves(possibleDirections, myPiece, myPosition, board);
     }
 }

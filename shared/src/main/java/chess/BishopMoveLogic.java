@@ -19,19 +19,9 @@ public class BishopMoveLogic extends PieceMoveLogic {
      */
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece myPiece) {
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
-        int startPositionRow = myPosition.getRow();
-        int startPositionCol = myPosition.getColumn();
-
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.UP_AND_LEFT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.UP_AND_RIGHT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.DOWN_AND_LEFT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.DOWN_AND_RIGHT));
-
-        return validMoves;
+        // Directions a bishop can move
+        Direction[] possibleDirections = {Direction.UP_AND_LEFT, Direction.UP_AND_RIGHT, Direction.DOWN_AND_LEFT,
+                Direction.DOWN_AND_RIGHT};
+        return calculateValidMoves(possibleDirections, myPiece, myPosition, board);
     }
 }

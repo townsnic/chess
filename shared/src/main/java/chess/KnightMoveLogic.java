@@ -19,27 +19,10 @@ public class KnightMoveLogic extends PieceMoveLogic {
      */
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessPiece myPiece) {
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
-        int startPositionRow = myPosition.getRow();
-        int startPositionCol = myPosition.getColumn();
-
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.UP_AND_LEFT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.UP_AND_RIGHT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.DOWN_AND_LEFT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.DOWN_AND_RIGHT));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.LEFT_AND_UP));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.LEFT_AND_DOWN));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.RIGHT_AND_UP));
-        validMoves.addAll(testDirection(board, startPositionRow,
-                startPositionCol, myPosition, myPiece, Direction.RIGHT_AND_DOWN));
-
-        return validMoves;
+        // Directions a knight can move
+        Direction[] possibleDirections = {Direction.UP_AND_LEFT, Direction.UP_AND_RIGHT, Direction.DOWN_AND_LEFT,
+                Direction.DOWN_AND_RIGHT, Direction.LEFT_AND_UP, Direction.LEFT_AND_DOWN, Direction.RIGHT_AND_UP,
+                Direction.RIGHT_AND_DOWN};
+        return calculateValidMoves(possibleDirections, myPiece, myPosition, board);
     }
 }
