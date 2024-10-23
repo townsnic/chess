@@ -9,25 +9,6 @@ import java.util.Collection;
 public class BishopMoveLogic extends PieceMoveLogic {
 
     /**
-     * Calculates all the positions a bishop can move to in a single direction
-     *
-     * @param board the current chess board
-     * @param startRow the row the bishop is at
-     * @param startCol the column the bishop is at
-     * @param myPosition the bishop's current position
-     * @param myPiece the bishop
-     * @param path the direction of interest
-     * @return collection of valid moves in a single direction
-     */
-    private Collection<ChessMove> testDirection(ChessBoard board, int startRow, int startCol,
-                                                 ChessPosition myPosition, ChessPiece myPiece, Direction path) {
-        int[] increments = setIncrements(path, myPiece);
-        int rowIncrement = increments[0];
-        int colIncrement = increments[1];
-        return asFarAsPossible(board, myPiece, myPosition, startRow, startCol, rowIncrement, colIncrement);
-    }
-
-    /**
      * Calculates all the positions a bishop can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger

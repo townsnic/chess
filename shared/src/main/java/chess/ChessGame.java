@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -22,6 +23,30 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    /**
+     * Overrides the equals method to compare attributes of ChessGame
+     *
+     * @param obj the object to compare current instantiation to
+     * @return if the objects are equal
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) { return true; }
+        if (obj == null || getClass() != obj.getClass()) { return false; }
+        ChessGame chessGame = (ChessGame) obj;
+        return Objects.equals(gameBoard, chessGame.gameBoard) && turn == chessGame.turn;
+    }
+
+    /**
+     * Overrides the hash method for larger hash spread
+     *
+     * @return the new hash code
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(gameBoard, turn);
     }
 
     /**
@@ -53,7 +78,7 @@ public class ChessGame {
         TeamColor currentTeam = myPiece.getTeamColor();
 
         // Ensures there is a piece at that space
-        if (myPiece == null) return null;
+        if (myPiece == null) { return null; }
 
         potentialMoves = myPiece.pieceMoves(gameBoard, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>(potentialMoves);
@@ -107,7 +132,7 @@ public class ChessGame {
         // Locates the position of the king
         ChessPosition kingSpace = findKing(teamColor);
         // Account for poorly-designed test cases where there is no king on the board
-        if (kingSpace == null) return false;
+        if (kingSpace == null) { return false; }
 
         // Iterates through every space on the board
         for (int row = 1; row < 9; ++row) {
@@ -209,7 +234,7 @@ public class ChessGame {
 
                     // Checks if the piece can move
                     if (piece.getTeamColor() == teamColor) {
-                        if (!validMoves(checkPosition).isEmpty()) return false;
+                        if (!validMoves(checkPosition).isEmpty()) { return false; }
                     }
                 }
             }

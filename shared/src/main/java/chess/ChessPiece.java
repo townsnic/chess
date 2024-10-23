@@ -36,8 +36,8 @@ public class ChessPiece {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) { return true; }
+        if (obj == null || getClass() != obj.getClass()) { return false; }
         ChessPiece piece = (ChessPiece) obj;
         return (pieceColor.equals(piece.pieceColor) && type.equals(piece.type));
     }

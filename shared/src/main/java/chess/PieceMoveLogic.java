@@ -131,17 +131,19 @@ public class PieceMoveLogic {
      * @param colIncrement the value to increment the column by (indicative of the move direction)
      * @return all the possible moves of a king or knight in one direction
      */
-    protected ChessMove justOneMove(ChessBoard board, ChessPiece myPiece, ChessPosition myPosition,
+    protected Collection<ChessMove> justOneMove(ChessBoard board, ChessPiece myPiece, ChessPosition myPosition,
                                                     int startRow, int startCol, int rowIncrement, int colIncrement) {
+        ArrayList<ChessMove> moves = new ArrayList<>();
+
         // Ensure potential position is on the board
         if (onBoard(startRow + rowIncrement, startCol + colIncrement)) {
             ChessPosition goodPosition = new ChessPosition(startRow + rowIncrement, startCol + colIncrement);
             // Ensure the position is not occupied by same team piece
             if (!friendlyFire(board, goodPosition, myPiece)) {
-                return new ChessMove(myPosition, goodPosition, null);
+                moves.add(new ChessMove(myPosition, goodPosition, null));
             }
         }
-        return null;
+        return moves;
     }
 
     /**
@@ -177,5 +179,63 @@ public class PieceMoveLogic {
             newCol += colIncrement;
         }
         return moves;
+    }
+
+    /**
+     * Calculates all the positions a piece (other than a pawn) can move to in a single direction
+     *
+     * @param board the current chess board
+     * @param startRow the row the rook is at
+     * @param startCol the rook the queen is at
+     * @param myPosition the rook's current position
+     * @param myPiece the rook
+     * @param path the direction of interest
+     * @return collection of valid moves in a single direction
+     */
+    protected Collection<ChessMove> testDirection(ChessBoard board, int startRow, int startCol,
+                                                  ChessPosition myPosition, ChessPiece myPiece, Direction path) {
+        int rowIncrement;
+        int colIncrement;
+
+        if (myPiece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+            // Determine move direction
+            if (path == Direction.UP_AND_LEFT) {
+                rowIncrement = 2;
+                colIncrement = -1;
+            } else if (path == Direction.UP_AND_RIGHT) {
+                rowIncrement = 2;
+                colIncrement = 1;
+            } else if (path == Direction.DOWN_AND_LEFT) {
+                rowIncrement = -2;
+                colIncrement = -1;
+            } else if (path == Direction.DOWN_AND_RIGHT) {
+                rowIncrement = -2;
+                colIncrement = 1;
+            } else if (path == Direction.LEFT_AND_UP) {
+                rowIncrement = 1;
+                colIncrement = -2;
+            } else if (path == Direction.LEFT_AND_DOWN) {
+                rowIncrement = -1;
+                colIncrement = -2;
+            } else if (path == Direction.RIGHT_AND_UP) {
+                rowIncrement = 1;
+                colIncrement = 2;
+            } else if (path == Direction.RIGHT_AND_DOWN) {
+                rowIncrement = -1;
+                colIncrement = 2;
+            } else {
+                throw new RuntimeException("A knight cannot move in that direction!");
+            }
+        } else {
+            int[] increments = setIncrements(path, myPiece);
+            rowIncrement = increments[0];
+            colIncrement = increments[1];
+        }
+
+        if (myPiece.getPieceType() == ChessPiece.PieceType.KNIGHT || myPiece.getPieceType() == ChessPiece.PieceType.KING) {
+            return justOneMove(board, myPiece, myPosition, startRow, startCol, rowIncrement, colIncrement);
+        } else {
+            return asFarAsPossible(board, myPiece, myPosition, startRow, startCol, rowIncrement, colIncrement);
+        }
     }
 }

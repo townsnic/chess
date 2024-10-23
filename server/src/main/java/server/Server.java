@@ -91,7 +91,7 @@ public class Server {
     }
 
     private void serviceExceptionHandler(ServiceException ex, Request req, Response res) {
-        res.status(ex.StatusCode());
+        res.status(ex.statusCode());
         res.body(serializer.toJson(Map.of("message", ex.getMessage())));
         ex.printStackTrace(System.out);
     }
