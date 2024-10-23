@@ -97,6 +97,13 @@ public class ChessGame {
         return validMoves;
     }
 
+    /**
+     * Executes all valid moves to determine if the king is still in check
+     *
+     * @param validMoves the list of current valid moves for a team
+     * @param teamColor the current team's color
+     * @return bool indicating if the king is still in check after executing valid moves
+     */
     private boolean checkValidMoves(Collection<ChessMove> validMoves, TeamColor teamColor) {
         if (validMoves != null) {
             for (ChessMove validMove : validMoves) {
@@ -182,23 +189,22 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         // If not in check, can't be in checkmate
-        if (isInCheck(teamColor)) {
-            // Iterates through every position on the board
-            for (int row = 1; row < 9; ++row) {
-                for (int col = 1; col < 9; ++col) {
-                    ChessPosition checkPosition = new ChessPosition(row, col);
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+        // Iterates through every position on the board
+        for (int row = 1; row < 9; ++row) {
+            for (int col = 1; col < 9; ++col) {
+                ChessPosition checkPosition = new ChessPosition(row, col);
 
-                    // Ensures a space is occupied by a team piece
-                    if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition) &&
-                            gameBoard.getPiece(checkPosition).getTeamColor() == teamColor) {
-                        Collection<ChessMove> validMoves = validMoves(checkPosition);
-                        // Checks all of a piece's valid moves
-                        return checkValidMoves(validMoves, teamColor);
-                    }
+                // Ensures a space is occupied by a team piece
+                if (PieceMoveLogic.spaceOccupied(gameBoard, checkPosition) &&
+                        gameBoard.getPiece(checkPosition).getTeamColor() == teamColor) {
+                    Collection<ChessMove> validMoves = validMoves(checkPosition);
+                    // Checks all of a piece's valid moves
+                    if(!checkValidMoves(validMoves, teamColor)) { return false; }
                 }
             }
-        } else {
-            return false;
         }
         return true;
     }
