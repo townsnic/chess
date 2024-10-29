@@ -10,7 +10,16 @@ import java.util.Collection;
 import java.util.Map;
 
 public class Server {
-    private final UserDAO userDAO = new MemoryUserDAO();
+    private final UserDAO userDAO;
+
+    {
+        try {
+            userDAO = new MySqlUserDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final GameDAO gameDAO = new MemoryGameDAO();
     private final AuthDAO authDAO = new MemoryAuthDAO();
     private final UserService userService = new UserService(userDAO, authDAO);

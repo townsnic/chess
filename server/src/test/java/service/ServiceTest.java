@@ -30,7 +30,7 @@ public class ServiceTest {
     }
 
     @BeforeEach
-    public void clear() {
+    public void clear() throws DataAccessException {
         userService.clear();
         gameService.clear();
     }

@@ -14,12 +14,12 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         userDAO.clearUser();
         authDAO.clearAuth();
     }
 
-    public AuthData registerUser(UserData newUser) throws ServiceException {
+    public AuthData registerUser(UserData newUser) throws Exception {
         String username = newUser.username();
 
         if (username == null || newUser.password() == null || newUser.email() == null) {
@@ -32,7 +32,7 @@ public class UserService {
         return authDAO.createAuth(username);
     }
 
-    public AuthData loginUser(UserData user) throws ServiceException {
+    public AuthData loginUser(UserData user) throws Exception {
         String username = user.username();
 
         if (userDAO.getUser(username) == null) {
