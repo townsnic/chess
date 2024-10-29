@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.ServiceException;
 
 public class DataAccessTest {
 
@@ -26,5 +27,13 @@ public class DataAccessTest {
         userDAO.createUser(expected);
         UserData actual = userDAO.getUser("username");
         Assertions.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void createUserFailure() throws DataAccessException {
+        UserData user = new UserData("username1", "password1", "email1@gmail.com");
+        UserData duplicateUser = new UserData("username1", "password1", "email1@gmail.com");
+        userDAO.createUser(user);
+        Assertions.assertThrows(DataAccessException.class, () -> userDAO.createUser(duplicateUser));
     }
 }
