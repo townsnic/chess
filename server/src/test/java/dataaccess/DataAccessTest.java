@@ -77,4 +77,18 @@ public class DataAccessTest {
         authDAO.createAuth("username");
         Assertions.assertNull(authDAO.getAuth("badToken"));
     }
+
+    @Test
+    public void deleteAuthSuccess() throws DataAccessException {
+        AuthData auth = authDAO.createAuth("username");
+        authDAO.deleteAuth(auth.authToken());
+        Assertions.assertNull(authDAO.getAuth(auth.authToken()));
+    }
+
+    @Test
+    public void deleteAuthFailure() throws DataAccessException {
+        AuthData auth = authDAO.createAuth("username");
+        authDAO.deleteAuth("badToken");
+        Assertions.assertEquals(authDAO.getAuth(auth.authToken()), auth);
+    }
 }
