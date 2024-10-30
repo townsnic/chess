@@ -44,7 +44,7 @@ public class UserService {
         return authDAO.createAuth(username);
     }
 
-    public void logoutUser(String authToken) throws ServiceException {
+    public void logoutUser(String authToken) throws Exception {
         if (authDAO.getAuth(authToken) == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }

@@ -1,5 +1,6 @@
 package dataaccess;
 
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,19 +10,22 @@ import org.junit.jupiter.api.Test;
 public class DataAccessTest {
 
     static private UserDAO userDAO;
+    static private AuthDAO authDAO;
 
     @BeforeAll
     public static void init() throws DataAccessException {
         userDAO = new MySqlUserDAO();
+        authDAO = new MySqlAuthDAO();
     }
 
     @BeforeEach
     public void clear() throws DataAccessException {
         userDAO.clearUser();
+        authDAO.clearAuth();
     }
 
     @Test
-    public void createUserSuccess() throws DataAccessException {
+    public void createUserSuccess() {
         UserData user = new UserData("username", "password", "email@gmail.com");
         Assertions.assertDoesNotThrow(() -> userDAO.createUser(user));
     }
@@ -49,5 +53,15 @@ public class DataAccessTest {
         userDAO.createUser(user1);
         UserData result = userDAO.getUser(user2.username());
         Assertions.assertNull(result);
+    }
+
+    @Test
+    public void createAuthSuccess() {
+        Assertions.assertDoesNotThrow(() -> authDAO.createAuth("username"));
+    }
+
+    @Test
+    public void createAuthFailure() {
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.createAuth(null));
     }
 }

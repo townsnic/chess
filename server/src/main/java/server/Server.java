@@ -11,17 +11,18 @@ import java.util.Map;
 
 public class Server {
     private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
     {
         try {
             userDAO = new MySqlUserDAO();
+            authDAO = new MySqlAuthDAO();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
     private final GameDAO gameDAO = new MemoryGameDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
     private final UserService userService = new UserService(userDAO, authDAO);
     private final GameService gameService = new GameService(gameDAO, authDAO);
     private final Gson serializer = new Gson();

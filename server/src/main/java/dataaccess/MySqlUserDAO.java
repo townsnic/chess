@@ -15,7 +15,7 @@ public class MySqlUserDAO extends MySqlDataAccess implements UserDAO {
     }
 
     public void createUser(UserData userData) throws DataAccessException {
-        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        var statement = "INSERT INTO user (authToken, username) VALUES (?, ?)";
         executeUpdate(statement, userData.username(), userData.password(), userData.email());
     }
 

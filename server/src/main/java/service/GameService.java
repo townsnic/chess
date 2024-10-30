@@ -16,19 +16,19 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         gameDAO.clearGame();
         authDAO.clearAuth();
     }
 
-    public Collection<GameData> listGames(String authToken) throws ServiceException {
+    public Collection<GameData> listGames(String authToken) throws Exception {
         if (authDAO.getAuth(authToken) == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }
         return gameDAO.listGames();
     }
 
-    public GameData createGame(String authToken, GameData gameData) throws ServiceException {
+    public GameData createGame(String authToken, GameData gameData) throws Exception {
         String gameName = gameData.gameName();
 
         if (gameName == null) {
@@ -43,7 +43,7 @@ public class GameService {
         return newGame;
     }
 
-    public void joinGame(String authToken, JoinRequest joinRequest) throws ServiceException {
+    public void joinGame(String authToken, JoinRequest joinRequest) throws Exception {
         ChessGame.TeamColor playerColor = joinRequest.playerColor();
         int gameID = joinRequest.gameID();
         GameData gameToJoin = gameDAO.getGame(gameID);
