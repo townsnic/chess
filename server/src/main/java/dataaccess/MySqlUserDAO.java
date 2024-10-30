@@ -10,21 +10,21 @@ public class MySqlUserDAO extends MySqlDataAccess implements UserDAO {
     }
 
     public void clearUser() throws DataAccessException {
-        var statement = "TRUNCATE user";
+        String statement = "TRUNCATE user";
         executeUpdate(statement);
     }
 
     public void createUser(UserData userData) throws DataAccessException {
-        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
         executeUpdate(statement, userData.username(), userData.password(), userData.email());
     }
 
     public UserData getUser(String username) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM user WHERE username=?";
-            try (var ps = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            String statement = "SELECT * FROM user WHERE username=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
-                try (var rs = ps.executeQuery()) {
+                try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readUser(rs);
                     }
