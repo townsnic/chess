@@ -64,4 +64,17 @@ public class DataAccessTest {
     public void createAuthFailure() {
         Assertions.assertThrows(DataAccessException.class, () -> authDAO.createAuth(null));
     }
+
+    @Test
+    public void getAuthSuccess() throws DataAccessException {
+        AuthData expected = authDAO.createAuth("username");
+        AuthData actual = authDAO.getAuth(expected.authToken());
+        Assertions.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void getAuthFailure() throws DataAccessException {
+        authDAO.createAuth("username");
+        Assertions.assertNull(authDAO.getAuth("badToken"));
+    }
 }
