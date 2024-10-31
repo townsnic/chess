@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
+
 public class DataAccessTest {
 
     static private UserDAO userDAO;
@@ -122,5 +124,25 @@ public class DataAccessTest {
         GameData game2 = gameDAO.createGame(new GameData(0, null, null,
                 "Cool Name 2", new ChessGame()));
         Assertions.assertNull(gameDAO.getGame(3));
+    }
+
+    @Test
+    public void listGameSuccess() throws DataAccessException {
+        GameData game1 = gameDAO.createGame(new GameData(0, null, null,
+                "Cool Name 1", new ChessGame()));
+        GameData game2 = gameDAO.createGame(new GameData(0, null, null,
+                "Cool Name 2", new ChessGame()));
+        GameData game3 = gameDAO.createGame(new GameData(0, null, null,
+                "Cool Name 3", new ChessGame()));
+        Collection<GameData> games = gameDAO.listGames();
+        Assertions.assertTrue(games.contains(game1));
+        Assertions.assertTrue(games.contains(game2));
+        Assertions.assertTrue(games.contains(game3));
+    }
+
+    @Test
+    public void listGameFailure() throws DataAccessException {
+        Collection<GameData> games = gameDAO.listGames();
+        Assertions.assertTrue(games.isEmpty());
     }
 }
