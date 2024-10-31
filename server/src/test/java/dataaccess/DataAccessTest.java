@@ -1,7 +1,7 @@
 package dataaccess;
 
-import model.AuthData;
-import model.UserData;
+import chess.ChessGame;
+import model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,11 +11,13 @@ public class DataAccessTest {
 
     static private UserDAO userDAO;
     static private AuthDAO authDAO;
+    static private GameDAO gameDAO;
 
     @BeforeAll
     public static void init() throws DataAccessException {
         userDAO = new MySqlUserDAO();
         authDAO = new MySqlAuthDAO();
+        gameDAO = new MySqlGameDAO();
     }
 
     @BeforeEach
@@ -90,5 +92,17 @@ public class DataAccessTest {
         AuthData auth = authDAO.createAuth("username");
         authDAO.deleteAuth("badToken");
         Assertions.assertEquals(authDAO.getAuth(auth.authToken()), auth);
+    }
+
+    @Test
+    public void createGameSuccess() {
+        GameData game = new GameData(0, null, null, "Cool Name", new ChessGame());
+        Assertions.assertDoesNotThrow(() -> gameDAO.createGame(game));
+    }
+
+    @Test
+    public void createGameFailure() {
+        GameData game = new GameData(0, null, null, null, null);
+        Assertions.assertThrows(DataAccessException.class, () -> gameDAO.createGame(game));
     }
 }
