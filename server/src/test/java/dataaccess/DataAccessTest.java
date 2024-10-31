@@ -145,4 +145,24 @@ public class DataAccessTest {
         Collection<GameData> games = gameDAO.listGames();
         Assertions.assertTrue(games.isEmpty());
     }
+
+    @Test
+    public void updateGameSuccess() throws DataAccessException {
+        GameData initialGame = gameDAO.createGame(new GameData(0, null, null,
+                "Cool Name 1", new ChessGame()));
+        GameData updatedGame = new GameData(1, "Cool User", null,
+                "Cool Name 1", new ChessGame());
+        gameDAO.updateGame(updatedGame);
+        Assertions.assertEquals(updatedGame, gameDAO.getGame(1));
+
+    }
+
+    @Test
+    public void updateGameFailure() throws DataAccessException {
+        GameData initialGame = gameDAO.createGame(new GameData(0, null, null,
+                "Cool Name 1", new ChessGame()));
+        GameData updatedGame = new GameData(2, "Cool User", null,
+                "Cool Name 1", new ChessGame());
+        Assertions.assertEquals(initialGame, gameDAO.getGame(1));
+    }
 }

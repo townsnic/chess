@@ -66,7 +66,10 @@ public class MySqlGameDAO extends MySqlDataAccess implements GameDAO {
         return gameList;
     }
 
-    public void updateGame(GameData gameData) {
+    public void updateGame(GameData gameData) throws DataAccessException {
+        String statement = "UPDATE game SET whiteUsername = ?, blackUsername = ?, game = ? WHERE gameID = ?";
+        String gameJson = serializer.toJson(gameData.game());
+        executeUpdate(statement, gameData.whiteUsername(), gameData.blackUsername(), gameJson, gameData.gameID());
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
