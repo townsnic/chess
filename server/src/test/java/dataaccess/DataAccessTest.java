@@ -62,6 +62,14 @@ public class DataAccessTest {
     }
 
     @Test
+    public void clearUserSuccess() throws DataAccessException {
+        UserData user = new UserData("username", "password", "email@gmail.com");
+        userDAO.createUser(user);
+        userDAO.clearUser();
+        Assertions.assertNull(userDAO.getUser(user.username()));
+    }
+
+    @Test
     public void createAuthSuccess() {
         Assertions.assertDoesNotThrow(() -> authDAO.createAuth("username"));
     }
@@ -96,6 +104,13 @@ public class DataAccessTest {
         AuthData auth = authDAO.createAuth("username");
         authDAO.deleteAuth("badToken");
         Assertions.assertEquals(authDAO.getAuth(auth.authToken()), auth);
+    }
+
+    @Test
+    public void clearAuthSuccess() throws DataAccessException {
+        AuthData auth = authDAO.createAuth("username");
+        authDAO.clearAuth();
+        Assertions.assertNull(authDAO.getAuth(auth.authToken()));
     }
 
     @Test
@@ -165,5 +180,12 @@ public class DataAccessTest {
         GameData updatedGame = new GameData(2, "Cool User", null,
                 "Cool Name 1", new ChessGame());
         Assertions.assertEquals(initialGame, gameDAO.getGame(1));
+    }
+
+    @Test
+    public void clearGameSuccess() throws DataAccessException {
+        GameData game = gameDAO.createGame(new GameData(0, null, null, "Cool Name", new ChessGame()));
+        gameDAO.clearGame();
+        Assertions.assertNull(gameDAO.getGame(game.gameID()));
     }
 }
