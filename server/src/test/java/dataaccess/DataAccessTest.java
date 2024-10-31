@@ -24,6 +24,7 @@ public class DataAccessTest {
     public void clear() throws DataAccessException {
         userDAO.clearUser();
         authDAO.clearAuth();
+        gameDAO.clearGame();
     }
 
     @Test
@@ -104,5 +105,22 @@ public class DataAccessTest {
     public void createGameFailure() {
         GameData game = new GameData(0, null, null, null, null);
         Assertions.assertThrows(DataAccessException.class, () -> gameDAO.createGame(game));
+    }
+
+    @Test
+    public void getGameSuccess() throws DataAccessException {
+        GameData expected = gameDAO.createGame(new GameData(0, null, null,
+                "Cool Name", new ChessGame()));
+        GameData actual = gameDAO.getGame(expected.gameID());
+        Assertions.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void getGameFailure() throws DataAccessException {
+        GameData game1 = gameDAO.createGame(new GameData(0, null, null,
+                "Cool Name 1", new ChessGame()));
+        GameData game2 = gameDAO.createGame(new GameData(0, null, null,
+                "Cool Name 2", new ChessGame()));
+        Assertions.assertNull(gameDAO.getGame(3));
     }
 }

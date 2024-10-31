@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.Collection;
@@ -12,8 +13,11 @@ public class MemoryGameDAO implements GameDAO {
         gameDataMap.clear();
     }
 
-    public void createGame(GameData gameData) {
-        gameDataMap.put(gameData.gameID(), gameData);
+    public GameData createGame(GameData gameData) {
+        GameData newGame = new GameData((gameDataMap.size() + 1),
+                null, null, gameData.gameName(), gameData.game());
+        gameDataMap.put(newGame.gameID(), newGame);
+        return newGame;
     }
 
     public GameData getGame(int gameID) {

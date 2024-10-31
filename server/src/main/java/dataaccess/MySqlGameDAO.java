@@ -20,14 +20,16 @@ public class MySqlGameDAO extends MySqlDataAccess implements GameDAO {
         executeUpdate(statement);
     }
 
-    public void createGame(GameData gameData) throws DataAccessException {
+    public GameData createGame(GameData gameData) throws DataAccessException {
         String statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        int gameID;
         if (gameData.game() != null) {
             String gameJson = serializer.toJson(gameData.game());
-            executeUpdate(statement, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameJson);
+            gameID = executeUpdate(statement, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameJson);
         } else {
-            executeUpdate(statement,gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), null);
+            gameID = executeUpdate(statement,gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), null);
         }
+        return new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
@@ -48,7 +50,7 @@ public class MySqlGameDAO extends MySqlDataAccess implements GameDAO {
     }
 
     public Collection<GameData> listGames() throws DataAccessException {
-        ArrayList<GameData> gameList = new ArrayList<GameData>();
+        ArrayList<GameData> gameList = new ArrayList<>();
         try (Connection conn = DatabaseManager.getConnection()) {
             String statement = "SELECT * FROM game";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {

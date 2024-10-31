@@ -37,10 +37,7 @@ public class GameService {
         if (authDAO.getAuth(authToken) == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        GameData newGame = new GameData((gameDAO.listGames().size() + 1),
-                null, null, gameName, new ChessGame());
-        gameDAO.createGame(newGame);
-        return newGame;
+        return gameDAO.createGame(gameData);
     }
 
     public void joinGame(String authToken, JoinRequest joinRequest) throws Exception {
