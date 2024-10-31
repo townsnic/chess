@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Objects;
 
@@ -38,7 +39,7 @@ public class UserService {
         if (userDAO.getUser(username) == null) {
             throw new ServiceException(401, "Error: unauthorized.");
         }
-        if (!Objects.equals(userDAO.getUser(username).password(), user.password())) {
+        if (!BCrypt.checkpw(user.password(), userDAO.getUser(username).password())) {
             throw new ServiceException(401, "Error: unauthorized");
         }
         return authDAO.createAuth(username);

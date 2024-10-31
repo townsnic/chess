@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Collection;
 
@@ -48,7 +49,7 @@ public class DataAccessTest {
         UserData expected = new UserData("username", "password", "email@gmail.com");
         userDAO.createUser(expected);
         UserData actual = userDAO.getUser("username");
-        Assertions.assertEquals(actual, expected);
+        Assertions.assertTrue(BCrypt.checkpw(expected.password(), actual.password()));
     }
 
     @Test

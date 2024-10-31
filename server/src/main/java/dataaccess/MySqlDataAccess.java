@@ -56,7 +56,7 @@ public class MySqlDataAccess {
               `whiteUsername` VARCHAR(256),
               `blackUsername` VARCHAR(256),
               `gameName` VARCHAR(256),
-              `game` TEXT NOT NULL,
+              `game` TEXT,
               PRIMARY KEY (`gameID`),
               INDEX(whiteUsername),
               INDEX(blackUsername),
