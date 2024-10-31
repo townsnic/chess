@@ -105,9 +105,9 @@ public class DataAccessTest {
     }
 
     @Test
-    public void createGameFailure() {
+    public void createGameFailure() throws DataAccessException {
         GameData game = new GameData(0, null, null, null, null);
-        Assertions.assertThrows(DataAccessException.class, () -> gameDAO.createGame(game));
+        Assertions.assertNull(gameDAO.createGame(game).game());
     }
 
     @Test

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import server.JoinRequest;
 
 import java.util.Collection;
@@ -21,7 +22,7 @@ public class ServiceTest {
     static private GameService gameService;
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws DataAccessException {
         userDAO = new MemoryUserDAO();
         authDAO = new MemoryAuthDAO();
         gameDAO = new MemoryGameDAO();
@@ -39,7 +40,7 @@ public class ServiceTest {
     public void registerUserSuccess() throws Exception {
         UserData newUser = new UserData("username", "password", "email@gmail.com");
         AuthData registrationResult = userService.registerUser(newUser);
-        Assertions.assertEquals(newUser, userDAO.getUser(newUser.username()));
+        Assertions.assertTrue(BCrypt.checkpw(newUser.password(), userDAO.getUser(newUser.username()).password()));
         Assertions.assertEquals(registrationResult, authDAO.getAuth(registrationResult.authToken()));
     }
 
