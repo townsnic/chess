@@ -10,11 +10,10 @@ public class PreLoginRepl {
 
     public void run() {
         System.out.println("\uD83D\uDC51 Welcome to the Chess Arena. Enter 'help' for options. \uD83D\uDC51");
-        System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("quit")) {
+        String result = "";
+        while (!result.equals("Leaving Chess Arena. Come back soon!")) {
             printPrompt();
             String line = scanner.nextLine();
 
@@ -22,7 +21,7 @@ public class PreLoginRepl {
                 result = client.eval(line);
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
-                var msg = e.toString();
+                String msg = e.toString();
                 System.out.print(msg);
             }
         }
