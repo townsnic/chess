@@ -1,9 +1,10 @@
 import java.util.Arrays;
 
 import com.google.gson.Gson;
+import model.UserData;
 
 public class ChessClient {
-    private String username = null;
+    //private String username = null;
     private final ServerFacade server;
     private final String serverUrl;
     private State state = State.LOGGED_OUT;
@@ -38,7 +39,11 @@ public class ChessClient {
     public String register(String... params) throws Exception {
         if (params.length == 3) {
             state = State.LOGGED_IN;
-            username = params[0];
+            String username = params[0];
+            String password = params[1];
+            String email = params[2];
+            UserData newUser = new UserData(username, password, email);
+            server.register(newUser);
             return String.format("You successfully registered as %s.", username);
         }
         throw new Exception("Invalid Command. Expected: <USERNAME> <PASSWORD> <EMAIL>");
@@ -47,7 +52,10 @@ public class ChessClient {
     public String login(String... params) throws Exception {
         if (params.length == 2) {
             state = State.LOGGED_IN;
-            username = params[0];
+            String username = params[0];
+            String password = params[1];
+            UserData user = new UserData(username, password, null);
+            server.login(user);
             return String.format("You successfully logged in as %s.", username);
         }
         throw new Exception("Invalid Command. Expected: <USERNAME> <PASSWORD>");
