@@ -1,10 +1,12 @@
 import java.util.Arrays;
 
 import com.google.gson.Gson;
+import model.AuthData;
 import model.UserData;
 
 public class ChessClient {
-    //private String username = null;
+    private String username = null;
+    private String loginAuthToken = null;
     private final ServerFacade server;
     private final String serverUrl;
     public State state = State.LOGGED_OUT;
@@ -23,7 +25,7 @@ public class ChessClient {
                 case LOGGED_OUT -> switch (cmd) {
                     case "register" -> register(params);
                     case "login" -> login(params);
-                    case "help" -> help();
+                    case "help" -> help(params);
                     case "quit" -> "Leaving Chess Arena. Come back soon!";
                     default -> "Invalid input. Enter 'help' for options.";
                 };
@@ -32,8 +34,8 @@ public class ChessClient {
 //                    case "list" -> listGames();
 //                    case "join" -> "joinGame()";
 //                    case "observe" -> "observeGame()";
-//                    case "logout" -> "quit";
-                    case "help" -> help();
+                    case "logout" -> logout(params);
+                    case "help" -> help(params);
                     case "quit" -> "Leaving Chess Arena. Come back soon!";
                     default -> "Invalid input. Enter 'help' for options.";
                 };
@@ -45,7 +47,7 @@ public class ChessClient {
 
     public String register(String... params) throws Exception {
         if (params.length == 3) {
-            String username = params[0];
+            username = params[0];
             String password = params[1];
             String email = params[2];
             UserData newUser = new UserData(username, password, email);
@@ -58,14 +60,25 @@ public class ChessClient {
 
     public String login(String... params) throws Exception {
         if (params.length == 2) {
-            String username = params[0];
+            username = params[0];
             String password = params[1];
             UserData user = new UserData(username, password, null);
-            server.login(user);
+            AuthData auth = server.login(user);
+            loginAuthToken = auth.authToken();
             state = State.LOGGED_IN;
             return String.format("You successfully logged in as %s.", username);
         }
         throw new Exception("Invalid Command. Expected: <USERNAME> <PASSWORD>");
+    }
+
+    public String logout(String... params) throws Exception {
+        if (params.length == 0) {
+            assertLoggedIn();
+            server.logout(loginAuthToken);
+            state = State.LOGGED_OUT;
+            return String.format("You have successfully logged out of account %s", username);
+        }
+        throw new Exception("Invalid Command. No parameters required.");
     }
 
 //    public String rescuePet(String... params) throws ResponseException {
@@ -118,14 +131,6 @@ public class ChessClient {
 //        return buffer.toString();
 //    }
 
-//    public String signOut() throws ResponseException {
-//        assertSignedIn();
-//        ws.leavePetShop(visitorName);
-//        ws = null;
-//        state = State.SIGNEDOUT;
-//        return String.format("%s left the shop", visitorName);
-//    }
-
 //    private Pet getPet(int id) throws ResponseException {
 //        for (var pet : server.listPets()) {
 //            if (pet.id() == id) {
@@ -135,31 +140,34 @@ public class ChessClient {
 //        return null;
 //    }
 
-    public String help() {
-        if (state == State.LOGGED_OUT) {
-            return """
-                    - register <USERNAME> <PASSWORD> <EMAIL>
-                    - login <USERNAME> <PASSWORD>
-                    - quit
-                    - help
-                    """;
-        } else if (state == State.LOGGED_IN) {
-            return """
-                    - create <NAME>
-                    - list
-                    - join <ID> <WHITE|BLACK>
-                    - observe <ID>
-                    - logout
-                    - quit
-                    - help
-                    """;
+    public String help(String... params) throws Exception {
+        if (params.length == 0) {
+            if (state == State.LOGGED_OUT) {
+                return """
+                        - register <USERNAME> <PASSWORD> <EMAIL>
+                        - login <USERNAME> <PASSWORD>
+                        - quit
+                        - help
+                        """;
+            } else if (state == State.LOGGED_IN) {
+                return """
+                        - create <NAME>
+                        - list
+                        - join <ID> <WHITE|BLACK>
+                        - observe <ID>
+                        - logout
+                        - quit
+                        - help
+                        """;
+            }
+            return null;
         }
-        return null;
+        throw new Exception("Invalid Command. No parameters required.");
     }
 
-//    private void assertSignedIn() throws ResponseException {
-//        if (state == State.SIGNEDOUT) {
-//            throw new ResponseException(400, "You must sign in");
-//        }
-//    }
+    private void assertLoggedIn() throws Exception {
+        if (state == State.LOGGED_OUT) {
+            throw new Exception("You are not logged in.");
+        }
+    }
 }
