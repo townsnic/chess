@@ -7,7 +7,7 @@ public class ChessClient {
     //private String username = null;
     private final ServerFacade server;
     private final String serverUrl;
-    private State state = State.LOGGED_OUT;
+    public State state = State.LOGGED_OUT;
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -19,17 +19,24 @@ public class ChessClient {
             var tokens = input.split(" ");
             var cmd = tokens[0];
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "register" -> register(params);
-                case "login" -> login(params);
-                case "quit" -> "Leaving Chess Arena. Come back soon!";
-                case "help" -> help();
-//                case "create" -> adoptPet(params);
-//                case "list" -> adoptAllPets();
-//                case "join" -> "quit";
-//                case "observe" -> "quit";
-//                case "logout" -> "quit";
-                default -> "Invalid input. Enter 'help' for options.";
+            return switch (state) {
+                case LOGGED_OUT -> switch (cmd) {
+                    case "register" -> register(params);
+                    case "login" -> login(params);
+                    case "help" -> help();
+                    case "quit" -> "Leaving Chess Arena. Come back soon!";
+                    default -> "Invalid input. Enter 'help' for options.";
+                };
+                case LOGGED_IN -> switch (cmd) {
+//                    case "create" -> createGame(params);
+//                    case "list" -> listGames();
+//                    case "join" -> "joinGame()";
+//                    case "observe" -> "observeGame()";
+//                    case "logout" -> "quit";
+                    case "help" -> help();
+                    case "quit" -> "Leaving Chess Arena. Come back soon!";
+                    default -> "Invalid input. Enter 'help' for options.";
+                };
             };
         } catch (Exception ex) {
             return ex.getMessage();
@@ -38,12 +45,12 @@ public class ChessClient {
 
     public String register(String... params) throws Exception {
         if (params.length == 3) {
-            state = State.LOGGED_IN;
             String username = params[0];
             String password = params[1];
             String email = params[2];
             UserData newUser = new UserData(username, password, email);
             server.register(newUser);
+            state = State.LOGGED_IN;
             return String.format("You successfully registered as %s.", username);
         }
         throw new Exception("Invalid Command. Expected: <USERNAME> <PASSWORD> <EMAIL>");
@@ -51,11 +58,11 @@ public class ChessClient {
 
     public String login(String... params) throws Exception {
         if (params.length == 2) {
-            state = State.LOGGED_IN;
             String username = params[0];
             String password = params[1];
             UserData user = new UserData(username, password, null);
             server.login(user);
+            state = State.LOGGED_IN;
             return String.format("You successfully logged in as %s.", username);
         }
         throw new Exception("Invalid Command. Expected: <USERNAME> <PASSWORD>");
