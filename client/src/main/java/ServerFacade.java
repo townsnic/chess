@@ -37,9 +37,9 @@ public class ServerFacade {
         return response.games();
     }
 
-    public void create(GameData game, String authToken) throws Exception {
+    public GameData create(GameData game, String authToken) throws Exception {
         String path = "/game";
-        this.makeRequest("POST", path, game, authToken, GameData.class);
+        return this.makeRequest("POST", path, game, authToken, GameData.class);
     }
 
     public void join(JoinRequest joinRequest, String authToken) throws Exception {

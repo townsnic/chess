@@ -1,8 +1,7 @@
 import java.util.Arrays;
 
 import com.google.gson.Gson;
-import model.AuthData;
-import model.UserData;
+import model.*;
 
 public class ChessClient {
     private String username = null;
@@ -30,7 +29,7 @@ public class ChessClient {
                     default -> "Invalid input. Enter 'help' for options.";
                 };
                 case LOGGED_IN -> switch (cmd) {
-//                    case "create" -> createGame(params);
+                    case "create" -> createGame(params);
 //                    case "list" -> listGames();
 //                    case "join" -> "joinGame()";
 //                    case "observe" -> "observeGame()";
@@ -76,23 +75,22 @@ public class ChessClient {
             assertLoggedIn();
             server.logout(loginAuthToken);
             state = State.LOGGED_OUT;
-            return String.format("You have successfully logged out of account %s", username);
+            return String.format("You have successfully logged out of account %s.", username);
         }
         throw new Exception("Invalid Command. No parameters required.");
     }
 
-//    public String rescuePet(String... params) throws ResponseException {
-//        assertSignedIn();
-//        if (params.length >= 2) {
-//            var name = params[0];
-//            var type = PetType.valueOf(params[1].toUpperCase());
-//            var pet = new Pet(0, name, type);
-//            pet = server.addPet(pet);
-//            return String.format("You rescued %s. Assigned ID: %d", pet.name(), pet.id());
-//        }
-//        throw new ResponseException(400, "Expected: <name> <CAT|DOG|FROG>");
-//    }
-//
+    public String createGame(String... params) throws Exception {
+        assertLoggedIn();
+        if (params.length == 1) {
+            String gameName = params[0];
+            GameData newGame = new GameData(0, null, null, gameName, null);
+            GameData createdGame = server.create(newGame, loginAuthToken);
+            return String.format("You created %s with ID: %d.", createdGame.gameName(), createdGame.gameID());
+        }
+        throw new Exception("Invalid Command. Expected: <NAME>");
+    }
+
 //    public String listPets() throws ResponseException {
 //        assertSignedIn();
 //        var pets = server.listPets();
