@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Collection;
 
 import com.google.gson.Gson;
 import model.*;
@@ -30,7 +31,7 @@ public class ChessClient {
                 };
                 case LOGGED_IN -> switch (cmd) {
                     case "create" -> createGame(params);
-//                    case "list" -> listGames();
+                    case "list" -> listGames();
 //                    case "join" -> "joinGame()";
 //                    case "observe" -> "observeGame()";
                     case "logout" -> logout(params);
@@ -91,16 +92,16 @@ public class ChessClient {
         throw new Exception("Invalid Command. Expected: <NAME>");
     }
 
-//    public String listPets() throws ResponseException {
-//        assertSignedIn();
-//        var pets = server.listPets();
-//        var result = new StringBuilder();
-//        var gson = new Gson();
-//        for (var pet : pets) {
-//            result.append(gson.toJson(pet)).append('\n');
-//        }
-//        return result.toString();
-//    }
+    public String listGames() throws Exception {
+        assertLoggedIn();
+        Collection<GameData> games = server.list(loginAuthToken);
+        StringBuilder result = new StringBuilder();
+        Gson gson = new Gson();
+        for (GameData game : games) {
+            result.append(gson.toJson(game)).append('\n');
+        }
+        return result.toString();
+    }
 
 //    public String adoptPet(String... params) throws ResponseException {
 //        assertSignedIn();
