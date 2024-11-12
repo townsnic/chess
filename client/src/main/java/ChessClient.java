@@ -12,14 +12,12 @@ import model.*;
 
 public class ChessClient {
     private final ServerFacade server;
-    private final String serverUrl;
     private String username = null;
     private String authToken = null;
     public State state = State.LOGGED_OUT;
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
     }
 
     public String eval(String input) {
@@ -35,7 +33,7 @@ public class ChessClient {
                     case "register" -> register(params);
                     case "login" -> login(params);
                     case "help" -> help(params);
-                    case "quit" -> "Leaving Chess Arena. Come back soon!";
+                    case "quit" -> quit(params);
                     default -> "Invalid input. Enter 'help' for options.";
                 };
                 case LOGGED_IN -> switch (cmd) {
@@ -45,7 +43,7 @@ public class ChessClient {
                     case "observe" -> observeGame(params);
                     case "logout" -> logout(params);
                     case "help" -> help(params);
-                    case "quit" -> "Leaving Chess Arena. Come back soon!";
+                    case "quit" -> quit(params);
                     default -> "Invalid input. Enter 'help' for options.";
                 };
             };
@@ -208,6 +206,7 @@ public class ChessClient {
             printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append("\u2003").append(row).append("\u2003");
             printBoard.append(RESET_BG_COLOR).append("\n");
         }
+
         printBoard.append(SET_BG_COLOR_BLUE).append(EMPTY).append("\u2009");
         for (String col : columns) {
             printBoard.append("\u2003").append(col);
@@ -216,6 +215,7 @@ public class ChessClient {
             }
         }
         printBoard.append("\u2003\u2009").append(EMPTY).append(RESET_BG_COLOR).append("\n");
+
         return printBoard.toString();
     }
 
@@ -240,6 +240,13 @@ public class ChessClient {
                         """;
             }
             return null;
+        }
+        throw new Exception("Invalid Command. No parameters required.");
+    }
+
+    public String quit(String... params) throws Exception {
+        if (params.length == 0) {
+            return "Leaving Chess Arena. Come back soon!";
         }
         throw new Exception("Invalid Command. No parameters required.");
     }

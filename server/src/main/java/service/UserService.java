@@ -4,8 +4,6 @@ import dataaccess.*;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.util.Objects;
-
 public class UserService {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
