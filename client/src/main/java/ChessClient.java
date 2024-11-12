@@ -19,9 +19,12 @@ public class ChessClient {
 
     public String eval(String input) {
         try {
-            var tokens = input.split(" ");
-            var cmd = tokens[0];
-            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            if (input.isBlank()) {
+                return "Invalid input. Enter 'help' for options.";
+            }
+            String[] tokens = input.split(" ");
+            String cmd = tokens[0];
+            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (state) {
                 case LOGGED_OUT -> switch (cmd) {
                     case "register" -> register(params);

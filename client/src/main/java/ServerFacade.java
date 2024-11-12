@@ -49,7 +49,7 @@ public class ServerFacade {
     }
 
     public void clear() throws Exception {
-        var path = "/db";
+        String path = "/db";
         this.makeRequest("DELETE", path, null, null, null);
     }
 
@@ -85,14 +85,11 @@ public class ServerFacade {
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws Exception {
         int status = http.getResponseCode();
-//        String message = http.getResponseMessage();
-
 
         if (!isSuccessful(status)) {
             InputStream errorStream = http.getErrorStream();
-            String errorMessage = new BufferedReader(new InputStreamReader(errorStream)).readLine();
-            Gson serializer = new Gson();
-            Map<String, String> messageMap = serializer.fromJson(errorMessage, Map.class);
+            InputStreamReader errorMessage = new InputStreamReader(errorStream);
+            Map<String, String> messageMap = new Gson().fromJson(errorMessage, Map.class);
             String message = messageMap.get("message");
             throw new Exception(message);
         }
@@ -112,6 +109,6 @@ public class ServerFacade {
     }
 
     private boolean isSuccessful(int status) {
-        return status / 100 == 2;
+        return status == 200;
     }
 }
