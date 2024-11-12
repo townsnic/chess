@@ -120,8 +120,11 @@ public class ChessClient {
         if (params.length == 1) {
             int gameNum = Integer.parseInt(params[0]);
             Collection<GameData> games = server.list(authToken);
+            if (gameNum < 1 || gameNum > games.size()) {
+                throw new Exception("Please provide a valid game ID.");
+            }
             ArrayList<GameData> gameList = new ArrayList<>(games);
-            GameData correctGame = gameList.get(gameNum);
+            GameData correctGame = gameList.get(gameNum - 1);
             String successMessage = String.format("You are now observing %s.", correctGame.gameName());
             String whiteBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.WHITE);
             String blackBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.BLACK);
