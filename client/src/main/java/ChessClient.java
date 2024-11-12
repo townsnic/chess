@@ -123,8 +123,9 @@ public class ChessClient {
             ArrayList<GameData> gameList = new ArrayList<>(games);
             GameData correctGame = gameList.get(gameNum);
             String successMessage = String.format("You are now observing %s.", correctGame.gameName());
-            String board = drawBoardWhite(correctGame.game());
-            return successMessage + "\n" + board;
+            String whiteBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.WHITE);
+            String blackBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.BLACK);
+            return successMessage + "\n" + whiteBoard + "\n" + blackBoard;
         }
         throw new Exception("Invalid Command. Expected: <ID>");
     }
@@ -134,17 +135,33 @@ public class ChessClient {
         return "";
     }
 
-    public String drawBoardWhite(ChessGame game) {
+    public String drawBoard(ChessGame game, ChessGame.TeamColor perspective) {
         ChessBoard board = game.getBoard();
         StringBuilder printBoard = new StringBuilder();
-        printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK);
-        printBoard.append(EMPTY).append("\u2003\u2009a ").append("\u2003b ").append("\u2003c ");
-        printBoard.append("\u2003d ").append("\u2003e ").append("\u2003f ").append("\u2003g ");
-        printBoard.append("\u2003h \u2009\u2009\u2009").append(EMPTY).append(RESET_BG_COLOR).append("\n");
+        String[] columns = {"a", "b", "c", "d", "e", "f", "g", "h"};
 
-        for (int row = 8; row > 0; row--) {
+        printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append(EMPTY).append("\u2009");
+        for (String col : columns) {
+            printBoard.append("\u2003").append(col);
+            if (!col.equals("h")) {
+                printBoard.append(" ");
+            }
+        }
+        printBoard.append("\u2003\u2009").append(EMPTY).append(RESET_BG_COLOR).append("\n");
+
+        int startRow;
+        int rowIncrement;
+        if (perspective == ChessGame.TeamColor.WHITE) {
+            startRow = 8;
+            rowIncrement = -1;
+        } else {
+            startRow = 1;
+            rowIncrement = 1;
+        }
+
+        for (int row = startRow; (perspective == ChessGame.TeamColor.WHITE) ? row > 0 : row < 9; row += rowIncrement) {
             int space = (row % 2) + 1;
-            printBoard.append(SET_TEXT_COLOR_BLACK).append(SET_BG_COLOR_BLUE).append("\u2003").append(row).append("\u2003");
+            printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append("\u2003").append(row).append("\u2003");
             for (int col = 1; col < 9; col++) {
                 if (space % 2 == 1) {
                     printBoard.append(SET_BG_COLOR_LIGHT_GREY);
@@ -185,28 +202,19 @@ public class ChessClient {
                 }
                 space++;
             }
-            printBoard.append(SET_TEXT_COLOR_BLACK).append(SET_BG_COLOR_BLUE).append("\u2003").append(row).append("\u2003").append(RESET_BG_COLOR).append("\n");
+            printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append("\u2003").append(row).append("\u2003");
+            printBoard.append(RESET_BG_COLOR).append("\n");
         }
-        printBoard.append(SET_BG_COLOR_BLUE).append(EMPTY).append("\u2003\u2009a ").append("\u2003b ").append("\u2003c ");
-        printBoard.append("\u2003d ").append("\u2003e ").append("\u2003f ").append("\u2003g ");
-        printBoard.append("\u2003h \u2009\u2009\u2009").append(EMPTY).append(RESET_BG_COLOR).append("\n");
+        printBoard.append(SET_BG_COLOR_BLUE).append(EMPTY).append("\u2009");
+        for (String col : columns) {
+            printBoard.append("\u2003").append(col);
+            if (!col.equals("h")) {
+                printBoard.append(" ");
+            }
+        }
+        printBoard.append("\u2003\u2009").append(EMPTY).append(RESET_BG_COLOR).append("\n");
         return printBoard.toString();
     }
-
-//    public String drawBoardBlack() {
-//
-//        StringBuilder board = new StringBuilder();
-//        board.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK);
-//        board.append(EMPTY).append(" a  b  c  d  e  f  g  h ").append(EMPTY);
-//        board.append("\n");
-//        board.append(EMPTY);
-//
-//        for (int i = 0; i < 8; i++) {
-//
-//        }
-//
-//        return board.toString();
-//    }
 
     public String help(String... params) throws Exception {
         if (params.length == 0) {
