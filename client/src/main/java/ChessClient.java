@@ -1,14 +1,15 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.google.gson.Gson;
+import static ui.EscapeSequences.*;
 import model.*;
 
 public class ChessClient {
-    private String username = null;
-    private String loginAuthToken = null;
     private final ServerFacade server;
     private final String serverUrl;
+    private String username = null;
+    private String loginAuthToken = null;
     public State state = State.LOGGED_OUT;
 
     public ChessClient(String serverUrl) {
@@ -32,8 +33,8 @@ public class ChessClient {
                 case LOGGED_IN -> switch (cmd) {
                     case "create" -> createGame(params);
                     case "list" -> listGames();
-//                    case "join" -> "joinGame()";
-//                    case "observe" -> "observeGame()";
+//                    case "join" -> playGame(params);
+//                    case "observe" -> observeGame(params);
                     case "logout" -> logout(params);
                     case "help" -> help(params);
                     case "quit" -> "Leaving Chess Arena. Come back soon!";
@@ -87,7 +88,7 @@ public class ChessClient {
             String gameName = params[0];
             GameData newGame = new GameData(0, null, null, gameName, null);
             GameData createdGame = server.create(newGame, loginAuthToken);
-            return String.format("You created %s with ID: %d.", createdGame.gameName(), createdGame.gameID());
+            return String.format("You created %s.", createdGame.gameName());
         }
         throw new Exception("Invalid Command. Expected: <NAME>");
     }
@@ -96,47 +97,60 @@ public class ChessClient {
         assertLoggedIn();
         Collection<GameData> games = server.list(loginAuthToken);
         StringBuilder result = new StringBuilder();
-        Gson gson = new Gson();
+        int gameNum = 1;
+        result.append(String.format("%-10s %-50s%n", "Game ID", "Game Name"));
         for (GameData game : games) {
-            result.append(gson.toJson(game)).append('\n');
+            result.append(String.format("%-10s %-50s%n", gameNum, game.gameName()));
+            ++gameNum;
         }
         return result.toString();
     }
 
-//    public String adoptPet(String... params) throws ResponseException {
-//        assertSignedIn();
+//    public String observeGame(String... params) throws Exception {
+//        assertLoggedIn();
 //        if (params.length == 1) {
-//            try {
-//                var id = Integer.parseInt(params[0]);
-//                var pet = getPet(id);
-//                if (pet != null) {
-//                    server.deletePet(id);
-//                    return String.format("%s says %s", pet.name(), pet.sound());
-//                }
-//            } catch (NumberFormatException ignored) {
-//            }
+//            //int gameNum = params[0];
+//            Collection<GameData> games = server.list(loginAuthToken);
+//            ArrayList<GameData> gameList = new ArrayList<>(games);
+//            //GameData correctGame = gameList.get(gameNum);
+//            //return String.format("You are now observing %s.", correctGame.gameName());
 //        }
-//        throw new ResponseException(400, "Expected: <pet id>");
+//        throw new Exception("Invalid Command. Expected: <ID>");
+//    }
+//
+//    public String playGame(String... params) throws Exception {
+//        assertLoggedIn();
+//        return "";
 //    }
 
-//    public String adoptAllPets() throws ResponseException {
-//        assertSignedIn();
-//        var buffer = new StringBuilder();
-//        for (var pet : server.listPets()) {
-//            buffer.append(String.format("%s says %s%n", pet.name(), pet.sound()));
+//    public String drawBoardWhite() {
+//
+//        StringBuilder board = new StringBuilder();
+//        board.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK);
+//        board.append(EMPTY).append(" a  b  c  d  e  f  g  h ").append(EMPTY);
+//        board.append("\n");
+//        board.append(EMPTY);
+//
+//        for (int i = 0; i < 8; i++) {
+//
 //        }
 //
-//        server.deleteAllPets();
-//        return buffer.toString();
+//        return board.toString();
 //    }
-
-//    private Pet getPet(int id) throws ResponseException {
-//        for (var pet : server.listPets()) {
-//            if (pet.id() == id) {
-//                return pet;
-//            }
+//
+//    public String drawBoardBlack() {
+//
+//        StringBuilder board = new StringBuilder();
+//        board.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK);
+//        board.append(EMPTY).append(" a  b  c  d  e  f  g  h ").append(EMPTY);
+//        board.append("\n");
+//        board.append(EMPTY);
+//
+//        for (int i = 0; i < 8; i++) {
+//
 //        }
-//        return null;
+//
+//        return board.toString();
 //    }
 
     public String help(String... params) throws Exception {

@@ -5,6 +5,7 @@ import server.JoinRequest;
 import java.io.*;
 import java.net.*;
 import java.util.Collection;
+import java.util.Map;
 
 public class ServerFacade {
 
@@ -84,8 +85,16 @@ public class ServerFacade {
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws Exception {
         int status = http.getResponseCode();
+//        String message = http.getResponseMessage();
+
+
         if (!isSuccessful(status)) {
-            throw new Exception("failure: " + status);
+            InputStream errorStream = http.getErrorStream();
+            String errorMessage = new BufferedReader(new InputStreamReader(errorStream)).readLine();
+            Gson serializer = new Gson();
+            Map<String, String> messageMap = serializer.fromJson(errorMessage, Map.class);
+            String message = messageMap.get("message");
+            throw new Exception(message);
         }
     }
 
