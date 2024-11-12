@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
@@ -9,6 +10,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.*;
+import server.JoinRequest;
 
 public class ChessClient {
     private final ServerFacade server;
@@ -39,7 +41,7 @@ public class ChessClient {
                 case LOGGED_IN -> switch (cmd) {
                     case "create" -> createGame(params);
                     case "list" -> listGames();
-//                    case "join" -> playGame(params);
+                    case "join" -> playGame(params);
                     case "observe" -> observeGame(params);
                     case "logout" -> logout(params);
                     case "help" -> help(params);
@@ -105,9 +107,21 @@ public class ChessClient {
         Collection<GameData> games = server.list(authToken);
         StringBuilder result = new StringBuilder();
         int gameNum = 1;
-        result.append(String.format("%-10s %-50s%n", "Game ID", "Game Name"));
+        result.append(String.format("%-10s %-20s %-20s %-20s%n", "Game ID", "Game Name", "White Player", "Black Player"));
         for (GameData game : games) {
-            result.append(String.format("%-10s %-50s%n", gameNum, game.gameName()));
+            String whiteUsername;
+            String blackUsername;
+            if (game.whiteUsername() == null) {
+                whiteUsername = "";
+            } else {
+                whiteUsername = game.whiteUsername();
+            }
+            if (game.blackUsername() == null) {
+                blackUsername = "";
+            } else {
+                blackUsername = game.blackUsername();
+            }
+            result.append(String.format("%-10s %-20s %-20s %-20s%n", gameNum, game.gameName(), whiteUsername, blackUsername));
             ++gameNum;
         }
         return result.toString();
@@ -123,6 +137,7 @@ public class ChessClient {
             }
             ArrayList<GameData> gameList = new ArrayList<>(games);
             GameData correctGame = gameList.get(gameNum - 1);
+
             String successMessage = String.format("You are now observing %s.", correctGame.gameName());
             String whiteBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.WHITE);
             String blackBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.BLACK);
@@ -133,7 +148,33 @@ public class ChessClient {
 
     public String playGame(String... params) throws Exception {
         assertLoggedIn();
-        return "";
+        if (params.length == 2) {
+            int gameNum = Integer.parseInt(params[0]);
+            Collection<GameData> games = server.list(authToken);
+            if (gameNum < 1 || gameNum > games.size()) {
+                throw new Exception("Please provide a valid game ID.");
+            }
+            ArrayList<GameData> gameList = new ArrayList<>(games);
+            GameData correctGame = gameList.get(gameNum - 1);
+
+            String color = params[1];
+            ChessGame.TeamColor teamColor;
+            if (Objects.equals(color.toUpperCase(), "WHITE")) {
+                teamColor = ChessGame.TeamColor.WHITE;
+            } else if (Objects.equals(color.toUpperCase(), "BLACK")) {
+                teamColor = ChessGame.TeamColor.BLACK;
+            } else {
+                throw new Exception("Please select a valid team color.");
+            }
+
+            JoinRequest newRequest = new JoinRequest(teamColor, correctGame.gameID());
+            server.join(newRequest, authToken);
+            String successMessage = String.format("You are now playing %s as %s.", correctGame.gameName(), color.toLowerCase());
+            String whiteBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.WHITE);
+            String blackBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.BLACK);
+            return successMessage + "\n" + whiteBoard + "\n" + blackBoard;
+        }
+        throw new Exception("Invalid Command. Expected: <ID> <WHITE|BLACK>");
     }
 
     public String drawBoard(ChessGame game, ChessGame.TeamColor perspective) {
