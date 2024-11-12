@@ -29,7 +29,7 @@ public class Repl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + "[" + client.state + "]" + " >>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print(RESET_BG_COLOR + RESET_TEXT_COLOR + "\n" + "[" + client.state + "]" + " >>> " + SET_TEXT_COLOR_GREEN);
     }
 
 }

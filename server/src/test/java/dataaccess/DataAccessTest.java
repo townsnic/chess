@@ -122,7 +122,7 @@ public class DataAccessTest {
     @Test
     public void createGameFailure() throws DataAccessException {
         GameData game = new GameData(0, null, null, null, null);
-        Assertions.assertNull(gameDAO.createGame(game).game());
+        Assertions.assertNull(gameDAO.createGame(game).gameName());
     }
 
     @Test

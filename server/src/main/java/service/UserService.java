@@ -38,7 +38,7 @@ public class UserService {
         String username = user.username();
 
         if (userDAO.getUser(username) == null) {
-            throw new ServiceException(401, "Error: Please provide a username.");
+            throw new ServiceException(401, "Error: The provided username does not exist.");
         }
         if (!BCrypt.checkpw(user.password(), userDAO.getUser(username).password())) {
             throw new ServiceException(401, "Error: The provided password is incorrect.");

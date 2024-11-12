@@ -23,13 +23,16 @@ public class MySqlGameDAO extends MySqlDataAccess implements GameDAO {
     public GameData createGame(GameData gameData) throws DataAccessException {
         String statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         int gameID;
+        String gameJson;
+        ChessGame game;
         if (gameData.game() != null) {
-            String gameJson = serializer.toJson(gameData.game());
-            gameID = executeUpdate(statement, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameJson);
+            game = gameData.game();
         } else {
-            gameID = executeUpdate(statement,gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), null);
+            game = new ChessGame();
         }
-        return new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
+        gameJson = serializer.toJson(game);
+        gameID = executeUpdate(statement, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameJson);
+        return new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
