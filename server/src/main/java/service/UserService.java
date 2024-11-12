@@ -24,10 +24,11 @@ public class UserService {
         String username = newUser.username();
 
         if (username == null || newUser.password() == null || newUser.email() == null) {
-            throw new ServiceException(400, "Error: bad request.");
+            throw new ServiceException(400, "Error: Please provide username, password, and email.");
         }
         if (userDAO.getUser(username) != null) {
-            throw new ServiceException(403, "Error: already taken.");
+            String errorMessage = String.format("Error: The username %s is already in use.", username);
+            throw new ServiceException(403, errorMessage);
         }
         userDAO.createUser(newUser);
         return authDAO.createAuth(username);
@@ -37,17 +38,17 @@ public class UserService {
         String username = user.username();
 
         if (userDAO.getUser(username) == null) {
-            throw new ServiceException(401, "Error: unauthorized.");
+            throw new ServiceException(401, "Error: Please provide a username.");
         }
         if (!BCrypt.checkpw(user.password(), userDAO.getUser(username).password())) {
-            throw new ServiceException(401, "Error: unauthorized");
+            throw new ServiceException(401, "Error: The provided password is incorrect.");
         }
         return authDAO.createAuth(username);
     }
 
     public void logoutUser(String authToken) throws Exception {
         if (authDAO.getAuth(authToken) == null) {
-            throw new ServiceException(401, "Error: unauthorized");
+            throw new ServiceException(401, "Error: Unauthorized");
         }
         authDAO.deleteAuth(authToken);
     }

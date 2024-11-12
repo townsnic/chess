@@ -23,7 +23,7 @@ public class GameService {
 
     public Collection<GameData> listGames(String authToken) throws Exception {
         if (authDAO.getAuth(authToken) == null) {
-            throw new ServiceException(401, "Error: unauthorized");
+            throw new ServiceException(401, "Error: Unauthorized");
         }
         return gameDAO.listGames();
     }
@@ -32,10 +32,10 @@ public class GameService {
         String gameName = gameData.gameName();
 
         if (gameName == null) {
-            throw new ServiceException(400, "Error: bad request");
+            throw new ServiceException(400, "Error: Please provide a name for the game.");
         }
         if (authDAO.getAuth(authToken) == null) {
-            throw new ServiceException(401, "Error: unauthorized");
+            throw new ServiceException(401, "Error: Unauthorized");
         }
         return gameDAO.createGame(gameData);
     }
@@ -46,21 +46,21 @@ public class GameService {
         GameData gameToJoin = gameDAO.getGame(gameID);
 
         if (playerColor != ChessGame.TeamColor.WHITE && playerColor != ChessGame.TeamColor.BLACK) {
-            throw new ServiceException(400, "Error: bad request");
+            throw new ServiceException(400, "Error: Please provide a valid color.");
         }
         if (gameToJoin == null) {
-            throw new ServiceException(400, "Error: bad request");
+            throw new ServiceException(400, "Error: Please select a valid game.");
         }
         if (authDAO.getAuth(authToken) == null) {
-            throw new ServiceException(401, "Error: unauthorized");
+            throw new ServiceException(401, "Error: Unauthorized");
         }
         if (playerColor == ChessGame.TeamColor.WHITE) {
             if (gameToJoin.whiteUsername() != null) {
-                throw new ServiceException(403, "Error: already taken");
+                throw new ServiceException(403, "Error: The selected color is already taken.");
             }
         } else {
             if (gameToJoin.blackUsername() != null) {
-                throw new ServiceException(403, "Error: already taken");
+                throw new ServiceException(403, "Error: The selected color is already taken.");
             }
         }
 
