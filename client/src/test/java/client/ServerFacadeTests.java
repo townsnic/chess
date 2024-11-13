@@ -1,10 +1,11 @@
 package client;
 
-import model.AuthData;
-import model.UserData;
+import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 import serverfacade.ServerFacade;
+
+import java.util.Collection;
 
 
 public class ServerFacadeTests {
@@ -72,4 +73,41 @@ public class ServerFacadeTests {
         Assertions.assertThrows(Exception.class, () -> facade.logout(auth));
     }
 
+    @Test
+    public void createSuccess() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        AuthData auth = facade.register(newUser);
+        GameData game = new GameData(0, null, null, "CoolName", null);
+        Assertions.assertDoesNotThrow(() -> facade.create(game, auth.authToken()));
+    }
+
+    @Test
+    public void createFailure() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        AuthData auth = facade.register(newUser);
+        GameData game = new GameData(0, null, null, null, null);
+        Assertions.assertThrows(Exception.class, () -> facade.create(game, auth.authToken()));
+    }
+
+    @Test
+    public void listSuccess() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        AuthData auth = facade.register(newUser);
+        GameData game1 = new GameData(0, null, null, "CoolName1", null);
+        GameData game2 = new GameData(0, null, null, "CoolName2", null);
+        facade.create(game1, auth.authToken());
+        facade.create(game2, auth.authToken());
+        Collection<GameData> games = facade.list(auth.authToken());
+        Assertions.assertEquals(games.size(), 2);
+    }
+
+    @Test
+    public void listFailure() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        AuthData auth = facade.register(newUser);
+        GameData game1 = new GameData(0, null, null, "CoolName1", null);
+        GameData game2 = new GameData(0, null, null, "CoolName2", null);
+        Collection<GameData> games = facade.list(auth.authToken());
+        Assertions.assertEquals(games.size(), 0);
+    }
 }
