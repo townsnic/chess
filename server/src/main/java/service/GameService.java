@@ -3,7 +3,6 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import model.*;
-import dataaccess.JoinRequest;
 
 import java.util.Collection;
 

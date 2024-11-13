@@ -10,7 +10,6 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.*;
-import dataaccess.JoinRequest;
 import serverfacade.ServerFacade;
 
 public class ChessClient {

@@ -2,7 +2,6 @@ package serverfacade;
 
 import com.google.gson.Gson;
 import model.*;
-import dataaccess.JoinRequest;
 
 import java.io.*;
 import java.net.*;
