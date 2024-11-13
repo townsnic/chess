@@ -3,7 +3,7 @@ package client;
 import chess.ChessGame;
 import model.*;
 import org.junit.jupiter.api.*;
-import server.JoinRequest;
+import dataaccess.JoinRequest;
 import server.Server;
 import serverfacade.ServerFacade;
 

@@ -1,4 +1,4 @@
-package server;
+package dataaccess;
 
 import chess.ChessGame;
 
