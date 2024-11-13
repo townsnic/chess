@@ -33,9 +33,9 @@ public class ServerFacade {
 
     public Collection<GameData> list(String authToken) throws Exception {
         String path = "/game";
-        record listResponse(Collection<GameData> games) {
+        record ListResponse(Collection<GameData> games) {
         }
-        listResponse response = this.makeRequest("GET", path, null, authToken, listResponse.class);
+        ListResponse response = this.makeRequest("GET", path, null, authToken, ListResponse.class);
         return response.games();
     }
 
