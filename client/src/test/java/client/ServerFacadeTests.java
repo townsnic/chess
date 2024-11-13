@@ -1,7 +1,9 @@
 package client;
 
+import chess.ChessGame;
 import model.*;
 import org.junit.jupiter.api.*;
+import server.JoinRequest;
 import server.Server;
 import serverfacade.ServerFacade;
 
@@ -108,6 +110,36 @@ public class ServerFacadeTests {
         GameData game1 = new GameData(0, null, null, "CoolName1", null);
         GameData game2 = new GameData(0, null, null, "CoolName2", null);
         Collection<GameData> games = facade.list(auth.authToken());
+        Assertions.assertEquals(games.size(), 0);
+    }
+
+    @Test
+    public void joinSuccess() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        AuthData auth = facade.register(newUser);
+        GameData game = new GameData(0, null, null, "CoolName", null);
+        facade.create(game, auth.authToken());
+        Assertions.assertDoesNotThrow(() -> facade.join(new JoinRequest(ChessGame.TeamColor.WHITE, 1), auth.authToken()));
+    }
+
+    @Test
+    public void joinFailure() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        AuthData auth = facade.register(newUser);
+        GameData game = new GameData(0, null, null, "CoolName", null);
+        facade.create(game, auth.authToken());
+        Assertions.assertThrows(Exception.class, () -> facade.join(new JoinRequest(ChessGame.TeamColor.WHITE, 2), auth.authToken()));
+    }
+
+    @Test
+    public void clearSuccess() throws Exception {
+        UserData newUser = new UserData("username", "password", "email@gmail.com");
+        AuthData auth = facade.register(newUser);
+        GameData game = new GameData(0, null, null, "CoolName", null);
+        facade.create(game, auth.authToken());
+        facade.clear();
+        AuthData newAuth = facade.register(newUser);
+        Collection<GameData> games = facade.list(newAuth.authToken());
         Assertions.assertEquals(games.size(), 0);
     }
 }
