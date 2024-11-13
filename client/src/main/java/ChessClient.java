@@ -180,12 +180,17 @@ public class ChessClient {
     public String drawBoard(ChessGame game, ChessGame.TeamColor perspective) {
         ChessBoard board = game.getBoard();
         StringBuilder printBoard = new StringBuilder();
-        String[] columns = {"a", "b", "c", "d", "e", "f", "g", "h"};
+        String[] columns;
+        if (perspective == ChessGame.TeamColor.WHITE) {
+            columns = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
+        } else {
+            columns = new String[] {"h", "g", "f", "e", "d", "c", "b", "a"};
+        }
 
         printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append(EMPTY).append("\u2009");
-        for (String col : columns) {
-            printBoard.append("\u2003").append(col);
-            if (!col.equals("h")) {
+        for (int col = 0; col < columns.length; ++col) {
+            printBoard.append("\u2003").append(columns[col]);
+            if (col < 7) {
                 printBoard.append(" ");
             }
         }
@@ -249,9 +254,9 @@ public class ChessClient {
         }
 
         printBoard.append(SET_BG_COLOR_BLUE).append(EMPTY).append("\u2009");
-        for (String col : columns) {
-            printBoard.append("\u2003").append(col);
-            if (!col.equals("h")) {
+        for (int col = 0; col < columns.length; ++col) {
+            printBoard.append("\u2003").append(columns[col]);
+            if (col < 7) {
                 printBoard.append(" ");
             }
         }
