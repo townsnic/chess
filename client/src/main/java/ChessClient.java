@@ -11,6 +11,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import model.*;
 import server.JoinRequest;
+import serverfacade.ServerFacade;
 
 public class ChessClient {
     private final ServerFacade server;
