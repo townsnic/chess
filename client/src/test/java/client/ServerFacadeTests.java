@@ -5,6 +5,8 @@ import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 import serverfacade.ServerFacade;
+import websocket.ServerMessageObserver;
+import websocket.messages.ServerMessage;
 
 import java.util.Collection;
 
@@ -19,8 +21,14 @@ public class ServerFacadeTests {
         server = new Server();
         int port = server.run(0);
         String address = String.format("http://localhost:%s", port);
+        ServerMessageObserver serverMessageObserver = new ServerMessageObserver() {
+            @Override
+            public void notify(ServerMessage message) {
+
+            }
+        };
         System.out.println("Started test HTTP server on " + port);
-        facade = new ServerFacade(address);
+        facade = new ServerFacade(address, serverMessageObserver);
     }
 
     @BeforeEach

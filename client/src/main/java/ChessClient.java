@@ -11,15 +11,17 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import model.*;
 import serverfacade.ServerFacade;
+import websocket.ServerMessageObserver;
+import websocket.messages.*;
 
-public class ChessClient {
+public class ChessClient implements ServerMessageObserver {
     private final ServerFacade server;
     private String username = null;
     private String authToken = null;
     public State state = State.LOGGED_OUT;
 
     public ChessClient(String serverUrl) {
-        server = new ServerFacade(serverUrl);
+        server = new ServerFacade(serverUrl, this);
     }
 
     public String eval(String input) {
@@ -302,4 +304,14 @@ public class ChessClient {
             throw new Exception("You are not logged in.");
         }
     }
+
+    @Override
+    public void notify(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case NOTIFICATION -> System.out.println("Notification");//displayNotification(((NotificationMessage) message).getMessage());
+            case ERROR -> System.out.println("Error");//displayError(((ErrorMessage) message).getErrorMessage());
+            case LOAD_GAME -> System.out.println("Game");//loadGame(((LoadGameMessage) message).getGame());
+        }
+    }
+
 }

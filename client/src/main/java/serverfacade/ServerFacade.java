@@ -2,6 +2,7 @@ package serverfacade;
 
 import com.google.gson.Gson;
 import model.*;
+import websocket.ServerMessageObserver;
 
 import java.io.*;
 import java.net.*;
@@ -11,9 +12,11 @@ import java.util.Map;
 public class ServerFacade {
 
     private final String serverUrl;
+    private final ServerMessageObserver serverMessageObserver;
 
-    public ServerFacade(String url) {
+    public ServerFacade(String url, ServerMessageObserver serverMessageObserver) {
         serverUrl = url;
+        this.serverMessageObserver = serverMessageObserver;
     }
 
     public AuthData register(UserData newUser) throws Exception {
