@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
+import server.websocket.WebSocketHandler;
 import service.*;
 import model.*;
 import spark.*;
@@ -13,12 +14,14 @@ public class Server {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
+    private final WebSocketHandler webSocketHandler;
 
     {
         try {
             userDAO = new MySqlUserDAO();
             authDAO = new MySqlAuthDAO();
             gameDAO = new MySqlGameDAO();
+            webSocketHandler = new WebSocketHandler();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -31,6 +34,8 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
