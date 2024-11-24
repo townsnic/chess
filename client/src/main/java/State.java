@@ -1,4 +1,5 @@
 public enum State {
     LOGGED_OUT,
-    LOGGED_IN
+    LOGGED_IN,
+    IN_GAME
 }

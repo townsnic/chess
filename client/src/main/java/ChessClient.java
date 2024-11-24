@@ -12,10 +12,12 @@ import chess.ChessPosition;
 import model.*;
 import serverfacade.ServerFacade;
 import websocket.ServerMessageObserver;
+import websocket.WebSocketCommunicator;
 import websocket.messages.*;
 
 public class ChessClient implements ServerMessageObserver {
     private final ServerFacade server;
+    private WebSocketCommunicator ws;
     private String username = null;
     private String authToken = null;
     public State state = State.LOGGED_OUT;
@@ -48,6 +50,14 @@ public class ChessClient implements ServerMessageObserver {
                     case "logout" -> logout(params);
                     case "help" -> help(params);
                     case "quit" -> quit(params);
+                    default -> "Invalid input. Enter 'help' for options.";
+                };
+                case IN_GAME -> switch (cmd) {
+                    case "redraw" -> "redraw"; //drawBoard(game, color);
+                    case "leave" -> "leave";
+                    case "move" -> "move";
+                    case "resign" -> "resign";
+                    case "highlight" -> "highlight";
                     default -> "Invalid input. Enter 'help' for options.";
                 };
             };
@@ -284,6 +294,15 @@ public class ChessClient implements ServerMessageObserver {
                         - observe <ID>
                         - logout
                         - quit
+                        - help
+                        """;
+            } else if (state == State.IN_GAME) {
+                return """
+                        - redraw
+                        - move <MOVE>
+                        - highlight <SPACE>
+                        - leave
+                        - resign
                         - help
                         """;
             }

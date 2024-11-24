@@ -25,7 +25,7 @@ public class WebSocketHandler {
         Connection con = connections.getConnection(command.getAuthToken(), session);
         if (con != null) {
             switch (command.getCommandType()) {
-                case CONNECT -> join(con, message);
+                case CONNECT -> connect(con, message);
                 case MAKE_MOVE -> move(con, message);
                 case LEAVE -> leave(con, message);
                 case RESIGN -> resign(con, message);
@@ -35,7 +35,7 @@ public class WebSocketHandler {
         }
     }
 
-    private void join(Connection con, String message) {
+    private void connect(Connection con, String message) {
 
     }
 
