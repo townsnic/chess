@@ -43,16 +43,16 @@ public class WebSocketCommunicator extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-//    public void enterPetShop(String visitorName) throws ResponseException {
-//        try {
-//            var action = new Action(Action.Type.ENTER, visitorName);
-//            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-//        } catch (IOException ex) {
-//            throw new ResponseException(500, ex.getMessage());
-//        }
-//    }
+    public void joinGame(String authToken, int gameID) throws Exception {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new Exception(ex.getMessage());
+        }
+    }
 //
-//    public void leavePetShop(String visitorName) throws ResponseException {
+//    public void leaveGame(String visitorName) throws ResponseException {
 //        try {
 //            var action = new Action(Action.Type.EXIT, visitorName);
 //            this.session.getBasicRemote().sendText(new Gson().toJson(action));

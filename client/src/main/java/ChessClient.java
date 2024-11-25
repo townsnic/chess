@@ -17,6 +17,7 @@ import websocket.messages.*;
 
 public class ChessClient implements ServerMessageObserver {
     private final ServerFacade server;
+    private final String serverUrl;
     private WebSocketCommunicator ws;
     private String username = null;
     private String authToken = null;
@@ -24,6 +25,7 @@ public class ChessClient implements ServerMessageObserver {
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl, this);
+        this.serverUrl = serverUrl;
     }
 
     public String eval(String input) {
@@ -58,6 +60,7 @@ public class ChessClient implements ServerMessageObserver {
                     case "move" -> "move";
                     case "resign" -> "resign";
                     case "highlight" -> "highlight";
+                    case "help" -> help(params);
                     default -> "Invalid input. Enter 'help' for options.";
                 };
             };
@@ -182,9 +185,11 @@ public class ChessClient implements ServerMessageObserver {
             JoinRequest newRequest = new JoinRequest(teamColor, correctGame.gameID());
             server.join(newRequest, authToken);
             String successMessage = String.format("You are now playing %s as %s.", correctGame.gameName(), color.toLowerCase());
-            String whiteBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.WHITE);
-            String blackBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.BLACK);
-            return successMessage + "\n" + whiteBoard + "\n" + blackBoard;
+            ws = new WebSocketCommunicator(serverUrl, this);
+            ws.joinGame(authToken, gameNum - 1);
+            state = State.IN_GAME;
+            String board = drawBoard(correctGame.game(), teamColor);
+            return successMessage + "\n" + board;
         }
         throw new Exception("Invalid Command. Expected: <ID> <WHITE|BLACK>");
     }
@@ -328,7 +333,7 @@ public class ChessClient implements ServerMessageObserver {
     public void notify(ServerMessage message) {
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> System.out.println("Notification");//displayNotification(((NotificationMessage) message).getMessage());
-            case ERROR -> System.out.println("Error");//displayError(((ErrorMessage) message).getErrorMessage());
+            case ERROR -> System.out.println("error");//displayError(((ErrorMessage) message).getErrorMessage());
             case LOAD_GAME -> System.out.println("Game");//loadGame(((LoadGameMessage) message).getGame());
         }
     }

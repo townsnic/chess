@@ -1,6 +1,8 @@
 package server.websocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -28,7 +30,44 @@ public class ConnectionManager {
         for (Connection con : connections.values()) {
             if (con.session.isOpen()) {
                 if (!con.authToken.equals(excludeAuth)) {
-                    con.send(message.toString());
+                    System.out.println(message);
+                    String json = new Gson().toJson(message);
+                    con.session.getRemote().sendString(json);
+                }
+            } else {
+                removeList.add(con);
+            }
+        }
+
+        for (Connection con : removeList) {
+            connections.remove(con.authToken);
+        }
+    }
+
+    public void broadcastLoadGame(String excludeAuth, LoadGameMessage message) throws IOException {
+        ArrayList<Connection> removeList = new ArrayList<Connection>();
+        for (Connection con : connections.values()) {
+            if (con.session.isOpen()) {
+                String json = new Gson().toJson(message);
+                con.session.getRemote().sendString(json);
+            } else {
+                removeList.add(con);
+            }
+        }
+
+        for (Connection con : removeList) {
+            connections.remove(con.authToken);
+        }
+    }
+
+    public void sendToSelf(String excludeAuth, ServerMessage message) throws IOException {
+        ArrayList<Connection> removeList = new ArrayList<Connection>();
+        for (Connection con : connections.values()) {
+            if (con.session.isOpen()) {
+                if (con.authToken.equals(excludeAuth)) {
+                    System.out.println(message);
+                    String json = new Gson().toJson(message);
+                    con.session.getRemote().sendString(json);
                 }
             } else {
                 removeList.add(con);

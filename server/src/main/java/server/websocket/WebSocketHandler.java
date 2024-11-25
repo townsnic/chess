@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.UserDAO;
 import dataaccess.GameDAO;
@@ -7,7 +8,7 @@ import dataaccess.AuthDAO;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
@@ -21,22 +22,23 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-
+        System.out.println(message);
         Connection con = connections.getConnection(command.getAuthToken(), session);
-        if (con != null) {
-            switch (command.getCommandType()) {
-                case CONNECT -> connect(con, message);
-                case MAKE_MOVE -> move(con, message);
-                case LEAVE -> leave(con, message);
-                case RESIGN -> resign(con, message);
-            }
-        } else {
-            throw new Exception("Unknown user.");
+        switch (command.getCommandType()) {
+            case CONNECT -> connect(command.getAuthToken(), session, message);
+            case MAKE_MOVE -> move(con, message);
+            case LEAVE -> leave(con, message);
+            case RESIGN -> resign(con, message);
         }
     }
 
-    private void connect(Connection con, String message) {
+    private void connect(String authToken, Session session, String message) throws IOException {
+        connections.addConnection(authToken, session);
+        NotificationMessage notification = new NotificationMessage(message);
+        System.out.println(message);
 
+        connections.broadcast(authToken, notification);
+        connections.sendToSelf(authToken, new LoadGameMessage(new ChessGame()));
     }
 
     private void move(Connection con, String message) {
