@@ -12,44 +12,62 @@ import websocket.messages.*;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
+import java.util.Objects;
 
 
 @WebSocket
 public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private final UserDAO userDAO;
+    private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
+
+    public WebSocketHandler(UserDAO userDAO, GameDAO gameDAO, AuthDAO authDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
+    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-        System.out.println(message);
-        Connection con = connections.getConnection(command.getAuthToken(), session);
+        //Connection con = connections.getConnection(command.getGameID(), command.getAuthToken(), session);
         switch (command.getCommandType()) {
-            case CONNECT -> connect(command.getAuthToken(), session, message);
-            case MAKE_MOVE -> move(con, message);
-            case LEAVE -> leave(con, message);
-            case RESIGN -> resign(con, message);
+            case CONNECT -> connect(command, session);
+            case MAKE_MOVE -> move(command, message);
+            case LEAVE -> leave(command, message);
+            case RESIGN -> resign(command, message);
         }
     }
 
-    private void connect(String authToken, Session session, String message) throws IOException {
-        connections.addConnection(authToken, session);
+    private void connect(UserGameCommand command, Session session) throws Exception {
+        String authToken = command.getAuthToken();
+        int gameID = command.getGameID();
+        connections.addConnection(gameID, authToken, session);
+        String username = authDAO.getAuth(authToken).username();
+        String message;
+        if (Objects.equals(username, gameDAO.getGame(gameID).whiteUsername())) {
+            message = String.format("%s has joined the game as white.", username);
+        } else if (Objects.equals(username, gameDAO.getGame(gameID).blackUsername())){
+            message = String.format("%s has joined the game as black.", username);
+        } else {
+            message = String.format("%s is observing the game.", username);
+        }
         NotificationMessage notification = new NotificationMessage(message);
-        System.out.println(message);
-
-        connections.broadcast(authToken, notification);
-        connections.sendToSelf(authToken, new LoadGameMessage(new ChessGame()));
+        connections.broadcast(gameID, authToken, notification);
+        //connections.sendToSelf(authToken, new LoadGameMessage(new ChessGame()));
     }
 
-    private void move(Connection con, String message) {
-
-    }
-
-    private void leave(Connection con, String message) {
+    private void move(UserGameCommand command, String message) {
 
     }
 
-    private void resign(Connection con, String message) {
+    private void leave(UserGameCommand command, String message) {
+
+    }
+
+    private void resign(UserGameCommand command, String message) {
 
     }
 

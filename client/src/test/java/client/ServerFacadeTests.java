@@ -23,7 +23,7 @@ public class ServerFacadeTests {
         String address = String.format("http://localhost:%s", port);
         ServerMessageObserver serverMessageObserver = new ServerMessageObserver() {
             @Override
-            public void notify(ServerMessage message) {
+            public void notify(String json) {
 
             }
         };

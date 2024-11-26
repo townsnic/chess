@@ -9,6 +9,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import com.google.gson.Gson;
 import model.*;
 import serverfacade.ServerFacade;
 import websocket.ServerMessageObserver;
@@ -186,7 +187,7 @@ public class ChessClient implements ServerMessageObserver {
             server.join(newRequest, authToken);
             String successMessage = String.format("You are now playing %s as %s.", correctGame.gameName(), color.toLowerCase());
             ws = new WebSocketCommunicator(serverUrl, this);
-            ws.joinGame(authToken, gameNum - 1);
+            ws.joinGame(authToken, correctGame.gameID());
             state = State.IN_GAME;
             String board = drawBoard(correctGame.game(), teamColor);
             return successMessage + "\n" + board;
@@ -330,12 +331,16 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     @Override
-    public void notify(ServerMessage message) {
+    public void notify(String json) {
+        ServerMessage message = new Gson().fromJson(json, ServerMessage.class);
         switch (message.getServerMessageType()) {
-            case NOTIFICATION -> System.out.println("Notification");//displayNotification(((NotificationMessage) message).getMessage());
+            case NOTIFICATION -> System.out.print(new Gson().fromJson(json, NotificationMessage.class).getMessage());
             case ERROR -> System.out.println("error");//displayError(((ErrorMessage) message).getErrorMessage());
             case LOAD_GAME -> System.out.println("Game");//loadGame(((LoadGameMessage) message).getGame());
         }
     }
 
+//    public void displayNotification(NotificationMessage notification) {
+//        String message = new Gson().fromJson(notification, )
+//    }
 }

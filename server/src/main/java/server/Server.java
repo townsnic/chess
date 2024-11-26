@@ -21,7 +21,7 @@ public class Server {
             userDAO = new MySqlUserDAO();
             authDAO = new MySqlAuthDAO();
             gameDAO = new MySqlGameDAO();
-            webSocketHandler = new WebSocketHandler();
+            webSocketHandler = new WebSocketHandler(userDAO, gameDAO, authDAO);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
