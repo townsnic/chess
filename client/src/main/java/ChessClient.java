@@ -155,11 +155,16 @@ public class ChessClient implements ServerMessageObserver {
             }
             ArrayList<GameData> gameList = new ArrayList<>(games);
             GameData correctGame = gameList.get(gameNum - 1);
+            teamColor = null;
 
             String successMessage = String.format("You are now observing %s.", correctGame.gameName());
-            String whiteBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.WHITE);
-            String blackBoard = drawBoard(correctGame.game(), ChessGame.TeamColor.BLACK);
-            return successMessage + "\n" + whiteBoard + "\n" + blackBoard;
+            state = State.IN_GAME;
+
+            // Send WebSocket messages
+            ws = new WebSocketCommunicator(serverUrl, this);
+            ws.joinGame(authToken, correctGame.gameID());
+
+            return successMessage;
         }
         throw new Exception("Invalid Command. Expected: <ID>");
     }
