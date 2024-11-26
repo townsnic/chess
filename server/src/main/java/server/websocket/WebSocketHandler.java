@@ -16,6 +16,7 @@ import java.util.Objects;
 public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private final Gson gson = new Gson();
     private final UserDAO userDAO;
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
@@ -28,7 +29,7 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
-        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+        UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case CONNECT -> connect(command, session);
             case MAKE_MOVE -> move(command, message);
@@ -52,7 +53,7 @@ public class WebSocketHandler {
         }
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);
-        //connections.sendToSelf(authToken, new LoadGameMessage(new ChessGame()));
+        connections.sendToSelf(gameID, authToken, new LoadGameMessage(gameDAO.getGame(gameID).game()));
     }
 
     private void move(UserGameCommand command, String message) {

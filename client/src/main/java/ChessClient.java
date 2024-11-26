@@ -17,11 +17,13 @@ import websocket.WebSocketCommunicator;
 import websocket.messages.*;
 
 public class ChessClient implements ServerMessageObserver {
+    private final Gson gson = new Gson();
     private final ServerFacade server;
     private final String serverUrl;
     private WebSocketCommunicator ws;
     private String username = null;
     private String authToken = null;
+    private ChessGame.TeamColor teamColor = null;
     public State state = State.LOGGED_OUT;
 
     public ChessClient(String serverUrl) {
@@ -176,7 +178,6 @@ public class ChessClient implements ServerMessageObserver {
 
             // Get the desired color
             String color = params[1];
-            ChessGame.TeamColor teamColor;
             if (Objects.equals(color.toUpperCase(), "WHITE")) {
                 teamColor = ChessGame.TeamColor.WHITE;
             } else if (Objects.equals(color.toUpperCase(), "BLACK")) {
@@ -195,8 +196,7 @@ public class ChessClient implements ServerMessageObserver {
             ws = new WebSocketCommunicator(serverUrl, this);
             ws.joinGame(authToken, correctGame.gameID());
 
-            String board = drawBoard(correctGame.game(), teamColor);
-            return successMessage + "\n" + board;
+            return successMessage;
         }
         throw new Exception("Invalid Command. Expected: <ID> <WHITE|BLACK>");
     }
@@ -204,11 +204,12 @@ public class ChessClient implements ServerMessageObserver {
     public String drawBoard(ChessGame game, ChessGame.TeamColor perspective) {
         ChessBoard board = game.getBoard();
         StringBuilder printBoard = new StringBuilder();
+        printBoard.append("\n\n");
         String[] columns;
-        if (perspective == ChessGame.TeamColor.WHITE) {
-            columns = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
-        } else {
+        if (perspective == ChessGame.TeamColor.BLACK) {
             columns = new String[] {"h", "g", "f", "e", "d", "c", "b", "a"};
+        } else {
+            columns = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
         }
 
         printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append(EMPTY).append("\u2009");
@@ -222,15 +223,15 @@ public class ChessClient implements ServerMessageObserver {
 
         int startRow;
         int rowIncrement;
-        if (perspective == ChessGame.TeamColor.WHITE) {
-            startRow = 8;
-            rowIncrement = -1;
-        } else {
+        if (perspective == ChessGame.TeamColor.BLACK) {
             startRow = 1;
             rowIncrement = 1;
+        } else {
+            startRow = 8;
+            rowIncrement = -1;
         }
 
-        for (int row = startRow; (perspective == ChessGame.TeamColor.WHITE) ? row > 0 : row < 9; row += rowIncrement) {
+        for (int row = startRow; (perspective == ChessGame.TeamColor.BLACK) ? row < 9 : row > 0; row += rowIncrement) {
             int space = (row % 2) + 1;
             printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append("\u2003").append(row).append("\u2003");
             for (int col = 1; col < 9; col++) {
@@ -338,11 +339,12 @@ public class ChessClient implements ServerMessageObserver {
 
     @Override
     public void notify(String json) {
-        ServerMessage message = new Gson().fromJson(json, ServerMessage.class);
+        ServerMessage message = gson.fromJson(json, ServerMessage.class);
         switch (message.getServerMessageType()) {
-            case NOTIFICATION -> System.out.print(new Gson().fromJson(json, NotificationMessage.class).getMessage());
+            case NOTIFICATION -> System.out.print(gson.fromJson(json, NotificationMessage.class).getMessage());
             case ERROR -> System.out.println("error");//displayError(((ErrorMessage) message).getErrorMessage());
-            case LOAD_GAME -> System.out.println("Game");//loadGame(((LoadGameMessage) message).getGame());
+            case LOAD_GAME -> System.out.println(drawBoard(gson.fromJson(json, LoadGameMessage.class).getGame(), teamColor));
         }
+        System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n" + "[" + state + "]" + " >>> " + SET_TEXT_COLOR_GREEN);
     }
 }
