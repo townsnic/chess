@@ -23,6 +23,7 @@ public class ChessClient implements ServerMessageObserver {
     private WebSocketCommunicator ws;
     private String username = null;
     private String authToken = null;
+    private int gameID;
     private ChessGame.TeamColor teamColor = null;
     public State state = State.LOGGED_OUT;
 
@@ -59,7 +60,7 @@ public class ChessClient implements ServerMessageObserver {
                 };
                 case IN_GAME -> switch (cmd) {
                     case "redraw" -> "redraw"; //drawBoard(game, color);
-                    case "leave" -> "leave";
+                    case "leave" -> leaveGame(params);
                     case "move" -> "move";
                     case "resign" -> "resign";
                     case "highlight" -> "highlight";
@@ -155,6 +156,7 @@ public class ChessClient implements ServerMessageObserver {
             }
             ArrayList<GameData> gameList = new ArrayList<>(games);
             GameData correctGame = gameList.get(gameNum - 1);
+            gameID = correctGame.gameID();
             teamColor = null;
 
             String successMessage = String.format("You are now observing %s.", correctGame.gameName());
@@ -162,7 +164,7 @@ public class ChessClient implements ServerMessageObserver {
 
             // Send WebSocket messages
             ws = new WebSocketCommunicator(serverUrl, this);
-            ws.joinGame(authToken, correctGame.gameID());
+            ws.joinGame(authToken, gameID);
 
             return successMessage;
         }
@@ -180,6 +182,7 @@ public class ChessClient implements ServerMessageObserver {
             }
             ArrayList<GameData> gameList = new ArrayList<>(games);
             GameData correctGame = gameList.get(gameNum - 1);
+            gameID = correctGame.gameID();
 
             // Get the desired color
             String color = params[1];
@@ -192,7 +195,7 @@ public class ChessClient implements ServerMessageObserver {
             }
 
             //Join the game
-            JoinRequest newRequest = new JoinRequest(teamColor, correctGame.gameID());
+            JoinRequest newRequest = new JoinRequest(teamColor, gameID);
             server.join(newRequest, authToken);
             String successMessage = String.format("You are now playing %s as %s.", correctGame.gameName(), color.toLowerCase());
             state = State.IN_GAME;
@@ -204,6 +207,15 @@ public class ChessClient implements ServerMessageObserver {
             return successMessage;
         }
         throw new Exception("Invalid Command. Expected: <ID> <WHITE|BLACK>");
+    }
+
+    public String leaveGame(String... params) throws Exception {
+        if (params.length == 0) {
+            ws.leaveGame(authToken, gameID);
+            state = State.LOGGED_IN;
+            return "You have left the game";
+        }
+        throw new Exception("Invalid Command. No parameters required.");
     }
 
     public String drawBoard(ChessGame game, ChessGame.TeamColor perspective) {

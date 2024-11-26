@@ -33,7 +33,7 @@ public class WebSocketHandler {
         switch (command.getCommandType()) {
             case CONNECT -> connect(command, session);
             case MAKE_MOVE -> move(command, message);
-            case LEAVE -> leave(command, message);
+            case LEAVE -> leave(command);
             case RESIGN -> resign(command, message);
         }
     }
@@ -60,8 +60,14 @@ public class WebSocketHandler {
 
     }
 
-    private void leave(UserGameCommand command, String message) {
-
+    private void leave(UserGameCommand command) throws Exception {
+        String authToken = command.getAuthToken();
+        int gameID = command.getGameID();
+        connections.removeConnection(gameID, authToken);
+        String username = authDAO.getAuth(authToken).username();
+        String message = String.format("%s has left the game.", username);
+        NotificationMessage notification = new NotificationMessage(message);
+        connections.broadcast(gameID, authToken, notification);
     }
 
     private void resign(UserGameCommand command, String message) {
