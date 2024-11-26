@@ -165,6 +165,7 @@ public class ChessClient implements ServerMessageObserver {
     public String playGame(String... params) throws Exception {
         assertLoggedIn();
         if (params.length == 2) {
+            // Get the correct game
             int gameNum = Integer.parseInt(params[0]);
             Collection<GameData> games = server.list(authToken);
             if (gameNum < 1 || gameNum > games.size()) {
@@ -173,6 +174,7 @@ public class ChessClient implements ServerMessageObserver {
             ArrayList<GameData> gameList = new ArrayList<>(games);
             GameData correctGame = gameList.get(gameNum - 1);
 
+            // Get the desired color
             String color = params[1];
             ChessGame.TeamColor teamColor;
             if (Objects.equals(color.toUpperCase(), "WHITE")) {
@@ -183,12 +185,16 @@ public class ChessClient implements ServerMessageObserver {
                 throw new Exception("Please select a valid team color.");
             }
 
+            //Join the game
             JoinRequest newRequest = new JoinRequest(teamColor, correctGame.gameID());
             server.join(newRequest, authToken);
             String successMessage = String.format("You are now playing %s as %s.", correctGame.gameName(), color.toLowerCase());
+            state = State.IN_GAME;
+
+            // Send WebSocket messages
             ws = new WebSocketCommunicator(serverUrl, this);
             ws.joinGame(authToken, correctGame.gameID());
-            state = State.IN_GAME;
+
             String board = drawBoard(correctGame.game(), teamColor);
             return successMessage + "\n" + board;
         }
@@ -339,8 +345,4 @@ public class ChessClient implements ServerMessageObserver {
             case LOAD_GAME -> System.out.println("Game");//loadGame(((LoadGameMessage) message).getGame());
         }
     }
-
-//    public void displayNotification(NotificationMessage notification) {
-//        String message = new Gson().fromJson(notification, )
-//    }
 }

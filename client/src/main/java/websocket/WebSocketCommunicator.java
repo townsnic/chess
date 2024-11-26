@@ -26,11 +26,9 @@ public class WebSocketCommunicator extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 public void onMessage(String msg) {
                     try {
-                        //ServerMessage message = new Gson().fromJson(msg, ServerMessage.class);
                         serverMessageObserver.notify(msg);
                     } catch(Exception ex) {
                         serverMessageObserver.notify(new Gson().toJson(new ErrorMessage(ex.getMessage())));
-                        //serverMessageObserver.notify(new ErrorMessage(ex.getMessage()));
                     }
                 }
 
@@ -52,7 +50,7 @@ public class WebSocketCommunicator extends Endpoint {
             throw new Exception(ex.getMessage());
         }
     }
-//
+
 //    public void leaveGame(String visitorName) throws ResponseException {
 //        try {
 //            var action = new Action(Action.Type.EXIT, visitorName);

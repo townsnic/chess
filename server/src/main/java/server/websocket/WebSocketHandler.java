@@ -1,6 +1,5 @@
 package server.websocket;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.UserDAO;
 import dataaccess.GameDAO;
@@ -11,9 +10,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.messages.*;
 import websocket.commands.UserGameCommand;
 
-import java.io.IOException;
 import java.util.Objects;
-
 
 @WebSocket
 public class WebSocketHandler {
@@ -32,7 +29,6 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-        //Connection con = connections.getConnection(command.getGameID(), command.getAuthToken(), session);
         switch (command.getCommandType()) {
             case CONNECT -> connect(command, session);
             case MAKE_MOVE -> move(command, message);

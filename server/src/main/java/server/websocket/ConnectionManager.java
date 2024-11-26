@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
+
     public final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> connections = new ConcurrentHashMap<>();
-    //public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
     public void addConnection(int gameID, String authToken, Session session) {
         Connection connection = new Connection(authToken, session);
@@ -46,40 +46,8 @@ public class ConnectionManager {
         }
     }
 
-//    public void broadcastLoadGame(String excludeAuth, LoadGameMessage message) throws IOException {
-//        ArrayList<Connection> removeList = new ArrayList<Connection>();
-//        for (Connection con : connections.values()) {
-//            if (con.session.isOpen()) {
-//                String json = new Gson().toJson(message);
-//                con.send(json);
-//            } else {
-//                removeList.add(con);
-//            }
-//        }
-//
-//        for (Connection con : removeList) {
-//            connections.remove(con.authToken);
-//        }
-//    }
-
     public void sendToSelf(int gameID, String sendAuth, ServerMessage message) throws IOException {
         String json = new Gson().toJson(message);
         connections.get(gameID).get(sendAuth).send(json);
-//        ArrayList<Connection> removeList = new ArrayList<Connection>();
-//        for (Connection con : connections.get(gameID).values()) {
-//            if (con.session.isOpen()) {
-//                if (con.authToken.equals(sendAuth)) {
-//                    System.out.println(message);
-//                    String json = new Gson().toJson(message);
-//                    con.send(json);
-//                }
-//            } else {
-//                removeList.add(con);
-//            }
-//        }
-//
-//        for (Connection con : removeList) {
-//            connections.remove(con.authToken);
-//        }
     }
 }
