@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.UserDAO;
 import dataaccess.GameDAO;
 import dataaccess.AuthDAO;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -65,6 +66,14 @@ public class WebSocketHandler {
         int gameID = command.getGameID();
         connections.removeConnection(gameID, authToken);
         String username = authDAO.getAuth(authToken).username();
+
+        GameData oldGame = gameDAO.getGame(gameID);
+        if (Objects.equals(username, oldGame.blackUsername())) {
+            gameDAO.updateGame(new GameData(oldGame.gameID(), oldGame.whiteUsername(), null, oldGame.gameName(), oldGame.game()));
+        } else if (Objects.equals(username, oldGame.whiteUsername())) {
+            gameDAO.updateGame(new GameData(oldGame.gameID(), null, oldGame.blackUsername(), oldGame.gameName(), oldGame.game()));
+        }
+
         String message = String.format("%s has left the game.", username);
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);
