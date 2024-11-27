@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 
@@ -62,7 +59,7 @@ public class ChessClient implements ServerMessageObserver {
                     case "redraw" -> drawBoard(currentGame.game(), teamColor);
                     case "leave" -> leaveGame(params);
                     case "move" -> "move";
-                    case "resign" -> "resign";
+                    case "resign" -> resign(params);
                     case "highlight" -> "highlight";
                     case "help" -> help(params);
                     default -> "Invalid input. Enter 'help' for options.";
@@ -211,9 +208,27 @@ public class ChessClient implements ServerMessageObserver {
         if (params.length == 0) {
             ws.leaveGame(authToken, currentGame.gameID());
             state = State.LOGGED_IN;
+            String successMessage = String.format("You have left %s.", currentGame.gameName());
             currentGame = null;
             teamColor = null;
-            return "You have left the game";
+            return successMessage;
+        }
+        throw new Exception("Invalid Command. No parameters required.");
+    }
+
+    public String resign(String... params) throws Exception {
+        if (params.length == 0) {
+            System.out.printf("Are you sure you want to forfeit %s?\n", currentGame.gameName());
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine();
+            if (line.equalsIgnoreCase("yes") || line.equalsIgnoreCase("y")) {
+                ws.resign(authToken, currentGame.gameID());
+                return String.format("You have forfeited %s.", currentGame.gameName());
+            } else if (line.equalsIgnoreCase("no") || line.equalsIgnoreCase("n")) {
+                return String.format("You are still playing %s.", currentGame.gameName());
+            } else {
+                return "Invalid Input. Expected <YES|NO>";
+            }
         }
         throw new Exception("Invalid Command. No parameters required.");
     }

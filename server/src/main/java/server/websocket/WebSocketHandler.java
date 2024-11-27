@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.UserDAO;
 import dataaccess.GameDAO;
@@ -35,7 +36,7 @@ public class WebSocketHandler {
             case CONNECT -> connect(command, session);
             case MAKE_MOVE -> move(command, message);
             case LEAVE -> leave(command);
-            case RESIGN -> resign(command, message);
+            case RESIGN -> resign(command);
         }
     }
 
@@ -60,11 +61,11 @@ public class WebSocketHandler {
         }
 
         if (Objects.equals(username, gameDAO.getGame(gameID).whiteUsername())) {
-            message = String.format("%s has joined the game as white.", username);
+            message = String.format("%s has joined %s as white.", username, gameDAO.getGame(gameID).gameName());
         } else if (Objects.equals(username, gameDAO.getGame(gameID).blackUsername())){
-            message = String.format("%s has joined the game as black.", username);
+            message = String.format("%s has joined %s as black.", username, gameDAO.getGame(gameID).gameName());
         } else {
-            message = String.format("%s is observing the game.", username);
+            message = String.format("%s is observing %s.", username, gameDAO.getGame(gameID).gameName());
         }
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);
@@ -88,13 +89,23 @@ public class WebSocketHandler {
             gameDAO.updateGame(new GameData(oldGame.gameID(), null, oldGame.blackUsername(), oldGame.gameName(), oldGame.game()));
         }
 
-        String message = String.format("%s has left the game.", username);
+        String message = String.format("%s has left %s.", username, gameDAO.getGame(gameID).gameName());
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);
     }
 
-    private void resign(UserGameCommand command, String message) {
+    private void resign(UserGameCommand command) throws Exception {
+        String username = authDAO.getAuth(command.getAuthToken()).username();
 
+        GameData oldGame = gameDAO.getGame(command.getGameID());
+        ChessGame game = oldGame.game();
+        game.gameOver = true;
+        GameData newGame = new GameData(oldGame.gameID(), oldGame.whiteUsername(), oldGame.blackUsername(), oldGame.gameName(), game);
+        gameDAO.updateGame(newGame);
+
+        String message = String.format("%s has forfeited %s.", username, oldGame.gameName());
+        NotificationMessage notification = new NotificationMessage(message);
+        connections.broadcast(oldGame.gameID(), command.getAuthToken(), notification);
     }
 
 //    private void enter(String visitorName, Session session) throws IOException {

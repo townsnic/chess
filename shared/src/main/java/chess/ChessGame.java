@@ -9,6 +9,7 @@ import java.util.Objects;
  */
 public class ChessGame {
 
+    public boolean gameOver = false;
     private ChessBoard gameBoard = new ChessBoard();
     private TeamColor turn;
 
@@ -206,6 +207,7 @@ public class ChessGame {
                 }
             }
         }
+        gameOver = true;
         return true;
     }
 
@@ -235,6 +237,7 @@ public class ChessGame {
                 }
             }
         }
+        gameOver = true;
         return true;
     }
 
