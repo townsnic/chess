@@ -43,8 +43,22 @@ public class WebSocketHandler {
         String authToken = command.getAuthToken();
         int gameID = command.getGameID();
         connections.addConnection(gameID, authToken, session);
+
+        if (authDAO.getAuth(authToken) == null) {
+            ErrorMessage error = new ErrorMessage("Error: Unauthorized");
+            connections.sendToSelf(gameID, authToken, error);
+            return;
+        }
+
         String username = authDAO.getAuth(authToken).username();
         String message;
+
+        if (gameDAO.getGame(gameID) == null) {
+            ErrorMessage error = new ErrorMessage("Error: Invalid game ID");
+            connections.sendToSelf(gameID, authToken, error);
+            return;
+        }
+
         if (Objects.equals(username, gameDAO.getGame(gameID).whiteUsername())) {
             message = String.format("%s has joined the game as white.", username);
         } else if (Objects.equals(username, gameDAO.getGame(gameID).blackUsername())){
