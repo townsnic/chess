@@ -23,7 +23,7 @@ public class ChessClient implements ServerMessageObserver {
     private WebSocketCommunicator ws;
     private String username = null;
     private String authToken = null;
-    private int gameID;
+    private GameData currentGame;
     private ChessGame.TeamColor teamColor = null;
     public State state = State.LOGGED_OUT;
 
@@ -59,7 +59,7 @@ public class ChessClient implements ServerMessageObserver {
                     default -> "Invalid input. Enter 'help' for options.";
                 };
                 case IN_GAME -> switch (cmd) {
-                    case "redraw" -> "redraw"; //drawBoard(game, color);
+                    case "redraw" -> drawBoard(currentGame.game(), teamColor);
                     case "leave" -> leaveGame(params);
                     case "move" -> "move";
                     case "resign" -> "resign";
@@ -155,16 +155,15 @@ public class ChessClient implements ServerMessageObserver {
                 throw new Exception("Please provide a valid game ID.");
             }
             ArrayList<GameData> gameList = new ArrayList<>(games);
-            GameData correctGame = gameList.get(gameNum - 1);
-            gameID = correctGame.gameID();
+            currentGame = gameList.get(gameNum - 1);
             teamColor = null;
 
-            String successMessage = String.format("You are now observing %s.", correctGame.gameName());
+            String successMessage = String.format("You are now observing %s.", currentGame.gameName());
             state = State.IN_GAME;
 
             // Send WebSocket messages
             ws = new WebSocketCommunicator(serverUrl, this);
-            ws.joinGame(authToken, gameID);
+            ws.joinGame(authToken, currentGame.gameID());
 
             return successMessage;
         }
@@ -181,8 +180,7 @@ public class ChessClient implements ServerMessageObserver {
                 throw new Exception("Please provide a valid game ID.");
             }
             ArrayList<GameData> gameList = new ArrayList<>(games);
-            GameData correctGame = gameList.get(gameNum - 1);
-            gameID = correctGame.gameID();
+            currentGame = gameList.get(gameNum - 1);
 
             // Get the desired color
             String color = params[1];
@@ -195,14 +193,14 @@ public class ChessClient implements ServerMessageObserver {
             }
 
             //Join the game
-            JoinRequest newRequest = new JoinRequest(teamColor, gameID);
+            JoinRequest newRequest = new JoinRequest(teamColor, currentGame.gameID());
             server.join(newRequest, authToken);
-            String successMessage = String.format("You are now playing %s as %s.", correctGame.gameName(), color.toLowerCase());
+            String successMessage = String.format("You are now playing %s as %s.", currentGame.gameName(), color.toLowerCase());
             state = State.IN_GAME;
 
             // Send WebSocket messages
             ws = new WebSocketCommunicator(serverUrl, this);
-            ws.joinGame(authToken, correctGame.gameID());
+            ws.joinGame(authToken, currentGame.gameID());
 
             return successMessage;
         }
@@ -211,8 +209,10 @@ public class ChessClient implements ServerMessageObserver {
 
     public String leaveGame(String... params) throws Exception {
         if (params.length == 0) {
-            ws.leaveGame(authToken, gameID);
+            ws.leaveGame(authToken, currentGame.gameID());
             state = State.LOGGED_IN;
+            currentGame = null;
+            teamColor = null;
             return "You have left the game";
         }
         throw new Exception("Invalid Command. No parameters required.");
@@ -359,7 +359,7 @@ public class ChessClient implements ServerMessageObserver {
         ServerMessage message = gson.fromJson(json, ServerMessage.class);
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> System.out.print(gson.fromJson(json, NotificationMessage.class).getMessage());
-            case ERROR -> System.out.println("error");//displayError(((ErrorMessage) message).getErrorMessage());
+            case ERROR -> System.out.print(gson.fromJson(json, ErrorMessage.class).getErrorMessage());
             case LOAD_GAME -> System.out.println(drawBoard(gson.fromJson(json, LoadGameMessage.class).getGame(), teamColor));
         }
         System.out.print("\n" + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n" + "[" + state + "]" + " >>> " + SET_TEXT_COLOR_GREEN);
