@@ -10,7 +10,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.messages.*;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 
 import java.util.Objects;
 
@@ -32,9 +32,11 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+        MakeMoveCommand moveCommand = gson.fromJson(message, MakeMoveCommand.class);
+
         switch (command.getCommandType()) {
             case CONNECT -> connect(command, session);
-            case MAKE_MOVE -> move(command, message);
+            case MAKE_MOVE -> move(moveCommand);
             case LEAVE -> leave(command);
             case RESIGN -> resign(command);
         }
@@ -72,8 +74,22 @@ public class WebSocketHandler {
         connections.sendToSelf(gameID, authToken, new LoadGameMessage(gameDAO.getGame(gameID).game()));
     }
 
-    private void move(UserGameCommand command, String message) {
+    private void move(MakeMoveCommand command) throws Exception {
+        String authToken = command.getAuthToken();
+        int gameID = command.getGameID();
+        String username = authDAO.getAuth(authToken).username();
 
+        GameData game = gameDAO.getGame(gameID);
+        game.game().makeMove(command.getMove());
+        gameDAO.updateGame(new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
+
+        LoadGameMessage gameMessage = new LoadGameMessage(game.game());
+        connections.broadcast(gameID, authToken, gameMessage);
+        connections.sendToSelf(gameID, authToken, gameMessage);
+
+        String message = String.format("%s has made a move.", username);
+        NotificationMessage notification = new NotificationMessage(message);
+        connections.broadcast(gameID, authToken, notification);
     }
 
     private void leave(UserGameCommand command) throws Exception {

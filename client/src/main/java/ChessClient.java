@@ -2,10 +2,7 @@ import java.util.*;
 
 import static ui.EscapeSequences.*;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
 import model.*;
 import serverfacade.ServerFacade;
@@ -58,7 +55,7 @@ public class ChessClient implements ServerMessageObserver {
                 case IN_GAME -> switch (cmd) {
                     case "redraw" -> drawBoard(currentGame.game(), teamColor);
                     case "leave" -> leaveGame(params);
-                    case "move" -> "move";
+                    case "move" -> makeMove(params);
                     case "resign" -> resign(params);
                     case "highlight" -> "highlight";
                     case "help" -> help(params);
@@ -218,7 +215,7 @@ public class ChessClient implements ServerMessageObserver {
 
     public String resign(String... params) throws Exception {
         if (params.length == 0) {
-            System.out.printf("Are you sure you want to forfeit %s?\n", currentGame.gameName());
+            System.out.printf("Are you sure you want to forfeit %s?\n>>> ", currentGame.gameName());
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
             if (line.equalsIgnoreCase("yes") || line.equalsIgnoreCase("y")) {
@@ -231,6 +228,78 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
         throw new Exception("Invalid Command. No parameters required.");
+    }
+
+    public String makeMove(String... params) throws Exception {
+        if (!currentGame.game().gameOver) {
+            if (params.length == 2) {
+                String curPos = params[0];
+                String newPos = params[1];
+                if (curPos.length() != 2 || newPos.length() != 2) {
+                    throw new Exception("Please provide a valid move.");
+                }
+
+                int startRow = switch (curPos.charAt(0)) {
+                    case 'a' -> 1;
+                    case 'b' -> 2;
+                    case 'c' -> 3;
+                    case 'd' -> 4;
+                    case 'e' -> 5;
+                    case 'f' -> 6;
+                    case 'g' -> 7;
+                    case 'h' -> 8;
+                    default -> throw new Exception("Please provide a valid start position.");
+                };
+
+                int startCol = Integer.parseInt(Character.toString(curPos.charAt(1)));
+                if (startCol < 1 || startCol > 8) {
+                    throw new Exception("Please provide a valid start position.");
+                }
+
+                int endRow = switch (newPos.charAt(0)) {
+                    case 'a' -> 1;
+                    case 'b' -> 2;
+                    case 'c' -> 3;
+                    case 'd' -> 4;
+                    case 'e' -> 5;
+                    case 'f' -> 6;
+                    case 'g' -> 7;
+                    case 'h' -> 8;
+                    default -> throw new Exception("Please provide a valid end position.");
+                };
+
+                int endCol = Integer.parseInt(Character.toString(newPos.charAt(1)));
+                if (endCol < 1 || endCol > 8) {
+                    throw new Exception("Please provide a valid end position.");
+                }
+
+                ChessPosition startPos = new ChessPosition(startRow, startCol);
+                ChessPosition endPos = new ChessPosition(endRow, endCol);
+
+                ChessPiece curPiece = currentGame.game().getBoard().getPiece(startPos);
+                ChessPiece.PieceType promotionPiece = null;
+                if ((curPiece.getPieceType() == chess.ChessPiece.PieceType.PAWN) &&
+                        ((curPiece.getTeamColor() == ChessGame.TeamColor.WHITE && endRow == 8) ||
+                                (curPiece.getTeamColor() == ChessGame.TeamColor.BLACK && endRow == 1))) {
+                    System.out.print("What would you like to promote your pawn to?\n>>> ");
+                    Scanner scanner = new Scanner(System.in);
+                    String line = scanner.nextLine();
+
+                    promotionPiece = switch (line.toLowerCase()) {
+                        case "queen" -> ChessPiece.PieceType.QUEEN;
+                        case "rook" -> ChessPiece.PieceType.ROOK;
+                        case "bishop" -> ChessPiece.PieceType.BISHOP;
+                        case "knight" -> ChessPiece.PieceType.KNIGHT;
+                        default -> throw new Exception("Please provide a valid piece.");
+                    };
+                }
+                ChessMove move = new ChessMove(startPos, endPos, promotionPiece);
+                ws.move(authToken, currentGame.gameID(), move);
+                return String.format("You have made move %s", move);
+            }
+            throw new Exception("Invalid Command. Expected: <CURRENT_SPACE> <NEW_SPACE>");
+        }
+        throw new Exception("The game is over. No more moves can be made.");
     }
 
     public String drawBoard(ChessGame game, ChessGame.TeamColor perspective) {
@@ -344,7 +413,7 @@ public class ChessClient implements ServerMessageObserver {
             } else if (state == State.IN_GAME) {
                 return """
                         - redraw
-                        - move <MOVE>
+                        - move <CURRENT_SPACE> <NEW_SPACE>
                         - highlight <SPACE>
                         - leave
                         - resign

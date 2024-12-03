@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import org.eclipse.jetty.server.Authentication;
 import websocket.messages.*;
@@ -66,6 +67,15 @@ public class WebSocketCommunicator extends Endpoint {
     public void resign(String authToken, int gameID) throws Exception {
         try {
             UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            this.session.getBasicRemote().sendText(gson.toJson(command));
+        } catch (IOException ex) {
+            throw new Exception(ex.getMessage());
+        }
+    }
+
+    public void move(String authToken, int gameID, ChessMove move) throws Exception {
+        try {
+            MakeMoveCommand command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
             this.session.getBasicRemote().sendText(gson.toJson(command));
         } catch (IOException ex) {
             throw new Exception(ex.getMessage());
