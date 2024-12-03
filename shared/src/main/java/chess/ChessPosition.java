@@ -46,7 +46,18 @@ public class ChessPosition {
      */
     @Override
     public String toString() {
-        return String.format("{%d,%d}", row, col);
+        char colChar = switch (col) {
+            case 1 -> 'a';
+            case 2 -> 'b';
+            case 3 -> 'c';
+            case 4 -> 'd';
+            case 5 -> 'e';
+            case 6 -> 'f';
+            case 7 -> 'g';
+            case 8 -> 'h';
+            default -> 'x';
+        };
+        return String.format("%c%d", colChar, row);
     }
 
     /**

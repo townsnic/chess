@@ -242,7 +242,7 @@ public class ChessClient implements ServerMessageObserver {
                     throw new Exception("Please provide a valid move.");
                 }
 
-                int startRow = switch (curPos.charAt(0)) {
+                int startCol = switch (curPos.charAt(0)) {
                     case 'a' -> 1;
                     case 'b' -> 2;
                     case 'c' -> 3;
@@ -254,12 +254,12 @@ public class ChessClient implements ServerMessageObserver {
                     default -> throw new Exception("Please provide a valid start position.");
                 };
 
-                int startCol = Integer.parseInt(Character.toString(curPos.charAt(1)));
-                if (startCol < 1 || startCol > 8) {
+                int startRow = Integer.parseInt(Character.toString(curPos.charAt(1)));
+                if (startRow < 1 || startRow > 8) {
                     throw new Exception("Please provide a valid start position.");
                 }
 
-                int endRow = switch (newPos.charAt(0)) {
+                int endCol = switch (newPos.charAt(0)) {
                     case 'a' -> 1;
                     case 'b' -> 2;
                     case 'c' -> 3;
@@ -271,8 +271,8 @@ public class ChessClient implements ServerMessageObserver {
                     default -> throw new Exception("Please provide a valid end position.");
                 };
 
-                int endCol = Integer.parseInt(Character.toString(newPos.charAt(1)));
-                if (endCol < 1 || endCol > 8) {
+                int endRow = Integer.parseInt(Character.toString(newPos.charAt(1)));
+                if (endRow < 1 || endRow > 8) {
                     throw new Exception("Please provide a valid end position.");
                 }
 

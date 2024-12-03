@@ -19,12 +19,10 @@ public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
     private final Gson gson = new Gson();
-    private final UserDAO userDAO;
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
     public WebSocketHandler(UserDAO userDAO, GameDAO gameDAO, AuthDAO authDAO) {
-        this.userDAO = userDAO;
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
@@ -83,7 +81,13 @@ public class WebSocketHandler {
         String username = authDAO.getAuth(authToken).username();
 
         GameData game = gameDAO.getGame(gameID);
-        game.game().makeMove(command.getMove());
+        try {
+            game.game().makeMove(command.getMove());
+        } catch(Exception ex) {
+            ErrorMessage error = new ErrorMessage(ex.getMessage());
+            connections.sendToSelf(gameID, authToken, error);
+            return;
+        }
         gameDAO.updateGame(new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
 
         LoadGameMessage gameMessage = new LoadGameMessage(game.game());
@@ -126,28 +130,4 @@ public class WebSocketHandler {
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(oldGame.gameID(), command.getAuthToken(), notification);
     }
-
-//    private void enter(String visitorName, Session session) throws IOException {
-//        connections.add(visitorName, session);
-//        var message = String.format("%s is in the shop", visitorName);
-//        var notification = new Notification(Notification.Type.ARRIVAL, message);
-//        connections.broadcast(visitorName, notification);
-//    }
-//
-//    private void exit(String visitorName) throws IOException {
-//        connections.remove(visitorName);
-//        var message = String.format("%s left the shop", visitorName);
-//        var notification = new Notification(Notification.Type.DEPARTURE, message);
-//        connections.broadcast(visitorName, notification);
-//    }
-//
-//    public void makeNoise(String petName, String sound) throws ResponseException {
-//        try {
-//            var message = String.format("%s says %s", petName, sound);
-//            var notification = new Notification(Notification.Type.NOISE, message);
-//            connections.broadcast("", notification);
-//        } catch (Exception ex) {
-//            throw new ResponseException(500, ex.getMessage());
-//        }
-//    }
 }
