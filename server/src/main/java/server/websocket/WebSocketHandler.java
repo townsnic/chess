@@ -62,12 +62,15 @@ public class WebSocketHandler {
             return;
         }
 
-        if (Objects.equals(username, gameDAO.getGame(gameID).whiteUsername())) {
+        GameData game = gameDAO.getGame(gameID);
+        if (Objects.equals(username, game.whiteUsername())) {
             message = String.format("%s has joined %s as white.", username, gameDAO.getGame(gameID).gameName());
-        } else if (Objects.equals(username, gameDAO.getGame(gameID).blackUsername())){
+            gameDAO.updateGame(new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
+        } else if (Objects.equals(username, game.blackUsername())){
             message = String.format("%s has joined %s as black.", username, gameDAO.getGame(gameID).gameName());
         } else {
             message = String.format("%s is observing %s.", username, gameDAO.getGame(gameID).gameName());
+            gameDAO.updateGame(new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
         }
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);

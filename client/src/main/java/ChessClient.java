@@ -34,6 +34,9 @@ public class ChessClient implements ServerMessageObserver {
             String[] tokens = input.split(" ");
             String cmd = tokens[0];
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            if (state == State.IN_GAME) {
+                updateGame();
+            }
             return switch (state) {
                 case LOGGED_OUT -> switch (cmd) {
                     case "register" -> register(params);
@@ -436,6 +439,13 @@ public class ChessClient implements ServerMessageObserver {
         if (state == State.LOGGED_OUT) {
             throw new Exception("You are not logged in.");
         }
+    }
+
+    private void updateGame() throws Exception {
+        Collection<GameData> games = server.list(authToken);
+        ArrayList<GameData> gameList = new ArrayList<>(games);
+        int gameID = currentGame.gameID();
+        currentGame = gameList.get(gameID - 1);
     }
 
     @Override
