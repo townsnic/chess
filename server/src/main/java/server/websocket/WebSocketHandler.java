@@ -41,7 +41,6 @@ public class WebSocketHandler {
 
     private void connect(UserGameCommand command, Session session) throws Exception {
         String authToken = command.getAuthToken();
-        String username = authDAO.getAuth(authToken).username();
         int gameID = command.getGameID();
         GameData game = gameDAO.getGame(gameID);
         connections.addConnection(gameID, authToken, session);
@@ -51,6 +50,7 @@ public class WebSocketHandler {
             connections.sendToSelf(gameID, authToken, error);
             return;
         }
+        String username = authDAO.getAuth(authToken).username();
         if (gameDAO.getGame(gameID) == null) {
             ErrorMessage error = new ErrorMessage("Error: Invalid game ID");
             connections.sendToSelf(gameID, authToken, error);
@@ -75,7 +75,6 @@ public class WebSocketHandler {
 
     private void move(MakeMoveCommand command, Session session) throws Exception {
         String authToken = command.getAuthToken();
-        String username = authDAO.getAuth(authToken).username();
         int gameID = command.getGameID();
         GameData game = gameDAO.getGame(gameID);
 
@@ -85,6 +84,7 @@ public class WebSocketHandler {
             connections.sendToSelf(gameID, authToken, error);
             return;
         }
+        String username = authDAO.getAuth(authToken).username();
         if (game.game().gameOver) {
             ErrorMessage error = new ErrorMessage("Error: The game is over. No more moves can be made.");
             connections.sendToSelf(gameID, authToken, error);
