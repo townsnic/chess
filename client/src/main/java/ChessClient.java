@@ -248,6 +248,9 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     public String makeMove(String... params) throws Exception {
+        if (teamColor == null) {
+            throw new Exception("Error: You are an observer. You cannot make a move.");
+        }
         if (!currentGame.game().gameOver) {
             if (params.length == 2) {
                 String curPos = params[0];

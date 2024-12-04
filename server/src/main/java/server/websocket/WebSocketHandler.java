@@ -66,9 +66,9 @@ public class WebSocketHandler {
             gameDAO.updateGame(new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
         } else if (Objects.equals(username, game.blackUsername())){
             message = String.format("%s has joined %s as black.", username, gameDAO.getGame(gameID).gameName());
+            gameDAO.updateGame(new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
         } else {
             message = String.format("%s is observing %s.", username, gameDAO.getGame(gameID).gameName());
-            gameDAO.updateGame(new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
         }
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);
@@ -83,11 +83,46 @@ public class WebSocketHandler {
         GameData game = gameDAO.getGame(gameID);
         try {
             game.game().makeMove(command.getMove());
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             ErrorMessage error = new ErrorMessage(ex.getMessage());
             connections.sendToSelf(gameID, authToken, error);
             return;
         }
+
+        String gameUpdate = null;
+        String selfUpdate = null;
+        if (game.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+            selfUpdate = gameUpdate = String.format("%s is in check.", game.blackUsername());
+        } else if (game.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+            selfUpdate = gameUpdate = String.format("%s is in check.", game.whiteUsername());
+        }
+
+        if (game.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            if (Objects.equals(username, game.blackUsername())) {
+                selfUpdate = String.format("You are in checkmate. %s wins!", game.whiteUsername());
+            } else {
+                selfUpdate = String.format("%s is in checkmate. You win!", game.blackUsername());
+            }
+            gameUpdate = String.format("%s is in checkmate. %s wins!", game.blackUsername(), game.whiteUsername());
+            game.game().gameOver = true;
+        } else if (game.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            if (Objects.equals(username, game.whiteUsername())) {
+                selfUpdate = String.format("You are in checkmate. %s wins!", game.blackUsername());
+            } else {
+                selfUpdate = String.format("%s is in checkmate. You win!", game.whiteUsername());
+            }
+            gameUpdate = String.format("%s is in checkmate. %s wins!", game.whiteUsername(), game.blackUsername());
+            game.game().gameOver = true;
+        }
+
+        if (game.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
+            selfUpdate = gameUpdate = String.format("%s is in stalemate. It's a draw.", game.blackUsername());
+            game.game().gameOver = true;
+        } else if (game.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
+            selfUpdate = gameUpdate = String.format("%s is in stalemate. It's a draw.", game.whiteUsername());
+            game.game().gameOver = true;
+        }
+
         gameDAO.updateGame(new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
 
         LoadGameMessage gameMessage = new LoadGameMessage(game.game(), command.getMove());
@@ -97,7 +132,15 @@ public class WebSocketHandler {
         String message = String.format("%s has made a move.", username);
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);
+
+        if (gameUpdate != null) {
+            NotificationMessage gameNotify = new NotificationMessage(gameUpdate);
+            NotificationMessage selfNotify = new NotificationMessage(selfUpdate);
+            connections.broadcast(gameID, authToken, gameNotify);
+            connections.sendToSelf(gameID, authToken, selfNotify);
+        }
     }
+
 
     private void leave(UserGameCommand command) throws Exception {
         String authToken = command.getAuthToken();
