@@ -2,7 +2,6 @@ package server.websocket;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.UserDAO;
 import dataaccess.GameDAO;
 import dataaccess.AuthDAO;
 import model.GameData;
@@ -22,7 +21,7 @@ public class WebSocketHandler {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
-    public WebSocketHandler(UserDAO userDAO, GameDAO gameDAO, AuthDAO authDAO) {
+    public WebSocketHandler(GameDAO gameDAO, AuthDAO authDAO) {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
@@ -42,7 +41,9 @@ public class WebSocketHandler {
 
     private void connect(UserGameCommand command, Session session) throws Exception {
         String authToken = command.getAuthToken();
+        String username = authDAO.getAuth(authToken).username();
         int gameID = command.getGameID();
+        GameData game = gameDAO.getGame(gameID);
         connections.addConnection(gameID, authToken, session);
 
         if (authDAO.getAuth(authToken) == null) {
@@ -50,17 +51,13 @@ public class WebSocketHandler {
             connections.sendToSelf(gameID, authToken, error);
             return;
         }
-
-        String username = authDAO.getAuth(authToken).username();
-        String message;
-
         if (gameDAO.getGame(gameID) == null) {
             ErrorMessage error = new ErrorMessage("Error: Invalid game ID");
             connections.sendToSelf(gameID, authToken, error);
             return;
         }
 
-        GameData game = gameDAO.getGame(gameID);
+        String message;
         if (Objects.equals(username, game.whiteUsername())) {
             message = String.format("%s has joined %s as white.", username, gameDAO.getGame(gameID).gameName());
             gameDAO.updateGame(new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
@@ -70,6 +67,7 @@ public class WebSocketHandler {
         } else {
             message = String.format("%s is observing %s.", username, gameDAO.getGame(gameID).gameName());
         }
+
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);
         connections.sendToSelf(gameID, authToken, new LoadGameMessage(gameDAO.getGame(gameID).game(), null));
@@ -77,7 +75,9 @@ public class WebSocketHandler {
 
     private void move(MakeMoveCommand command, Session session) throws Exception {
         String authToken = command.getAuthToken();
+        String username = authDAO.getAuth(authToken).username();
         int gameID = command.getGameID();
+        GameData game = gameDAO.getGame(gameID);
 
         if (authDAO.getAuth(authToken) == null) {
             ErrorMessage error = new ErrorMessage("Error: Unauthorized");
@@ -85,23 +85,16 @@ public class WebSocketHandler {
             connections.sendToSelf(gameID, authToken, error);
             return;
         }
-
-        String username = authDAO.getAuth(authToken).username();
-
-        GameData game = gameDAO.getGame(gameID);
-
         if (game.game().gameOver) {
             ErrorMessage error = new ErrorMessage("Error: The game is over. No more moves can be made.");
             connections.sendToSelf(gameID, authToken, error);
             return;
         }
-
         if (!Objects.equals(username, game.blackUsername()) && !Objects.equals(username, game.whiteUsername())) {
             ErrorMessage error = new ErrorMessage("Error: An observer cannot make a move.");
             connections.sendToSelf(gameID, authToken, error);
             return;
         }
-
         if ((Objects.equals(username, game.blackUsername()) &&
                 (game.game().getBoard().getPiece(command.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE)) ||
                 (Objects.equals(username, game.whiteUsername()) &&
@@ -200,7 +193,6 @@ public class WebSocketHandler {
             connections.sendToSelf(oldGame.gameID(), command.getAuthToken(), error);
             return;
         }
-
         if (!Objects.equals(username, oldGame.blackUsername()) && !Objects.equals(username, oldGame.whiteUsername())) {
             ErrorMessage error = new ErrorMessage("Error: An observer cannot resign.");
             connections.sendToSelf(oldGame.gameID(), command.getAuthToken(), error);
@@ -214,7 +206,7 @@ public class WebSocketHandler {
         String message = String.format("%s has forfeited %s.", username, oldGame.gameName());
         String selfMessage = String.format("You have forfeited %s.", oldGame.gameName());
         NotificationMessage notification = new NotificationMessage(message);
-        NotificationMessage selfNotification = new NotificationMessage(message);
+        NotificationMessage selfNotification = new NotificationMessage(selfMessage);
         connections.broadcast(oldGame.gameID(), command.getAuthToken(), notification);
         connections.sendToSelf(oldGame.gameID(), command.getAuthToken(), selfNotification);
     }

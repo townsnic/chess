@@ -157,10 +157,12 @@ public class ChessClient implements ServerMessageObserver {
             } catch (Exception ex) {
                 throw new Exception("Error: Please provide a valid game ID.");
             }
+
             Collection<GameData> games = server.list(authToken);
             if (gameNum < 1 || gameNum > games.size()) {
                 throw new Exception("Error: Please provide a valid game ID.");
             }
+
             ArrayList<GameData> gameList = new ArrayList<>(games);
             currentGame = gameList.get(gameNum - 1);
             teamColor = null;
@@ -186,10 +188,12 @@ public class ChessClient implements ServerMessageObserver {
             } catch (Exception ex) {
                 throw new Exception("Error: Please provide a valid game ID.");
             }
+
             Collection<GameData> games = server.list(authToken);
             if (gameNum < 1 || gameNum > games.size()) {
                 throw new Exception("Error: Please provide a valid game ID.");
             }
+
             ArrayList<GameData> gameList = new ArrayList<>(games);
             currentGame = gameList.get(gameNum - 1);
 
@@ -249,7 +253,7 @@ public class ChessClient implements ServerMessageObserver {
 
     public String makeMove(String... params) throws Exception {
         if (teamColor == null) {
-            throw new Exception("Error: You are an observer. You cannot make a move.");
+            throw new Exception("Error: An observer cannot make a move.");
         }
         if (!currentGame.game().gameOver) {
             if (params.length == 2) {
@@ -259,17 +263,16 @@ public class ChessClient implements ServerMessageObserver {
                     throw new Exception("Error: Please provide a valid move.");
                 }
 
-                ChessPosition startPos = getChessPosition(curPos);//new ChessPosition(startRow, startCol);
-                ChessPosition endPos = getChessPosition(newPos);//new ChessPosition(endRow, endCol);
+                ChessPosition startPos = getChessPosition(curPos);
+                ChessPosition endPos = getChessPosition(newPos);
                 ChessPiece curPiece = currentGame.game().getBoard().getPiece(startPos);
                 int endRow = Integer.parseInt(Character.toString(newPos.charAt(1)));
 
                 if (curPiece == null) {
                     throw new Exception("Error: There is no piece at that position.");
                 }
-
                 if (curPiece.getTeamColor() != teamColor) {
-                    throw new Exception("Error: That's not your piece.");
+                    throw new Exception("Error: You cannot move your opponent's piece.");
                 }
 
                 ChessPiece.PieceType promotionPiece = null;
@@ -336,6 +339,7 @@ public class ChessClient implements ServerMessageObserver {
         for (int row = startRow; (perspective == ChessGame.TeamColor.BLACK) ? row < 9 : row > 0; row += rowIncrement) {
             int space = (row % 2) + 1;
             printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append("\u2003").append(row).append("\u2003");
+
             for (int col = startCol; (perspective == ChessGame.TeamColor.BLACK) ? col > 0 : col < 9; col += colIncrement) {
                 ChessPosition curPos = new ChessPosition(row, col);
                 if (space % 2 == ((perspective == ChessGame.TeamColor.BLACK) ? 0 : 1)) {

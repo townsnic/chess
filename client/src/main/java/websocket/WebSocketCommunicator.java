@@ -2,7 +2,6 @@ package websocket;
 
 import chess.ChessMove;
 import com.google.gson.Gson;
-import org.eclipse.jetty.server.Authentication;
 import websocket.messages.*;
 import websocket.commands.*;
 
