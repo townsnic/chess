@@ -326,19 +326,25 @@ public class ChessClient implements ServerMessageObserver {
         printBoard.append("\u2003\u2009").append(EMPTY).append(RESET_BG_COLOR).append("\n");
 
         int startRow;
+        int startCol;
         int rowIncrement;
+        int colIncrement;
         if (perspective == ChessGame.TeamColor.BLACK) {
             startRow = 1;
             rowIncrement = 1;
+            startCol = 8;
+            colIncrement = -1;
         } else {
             startRow = 8;
             rowIncrement = -1;
+            startCol = 1;
+            colIncrement = 1;
         }
 
         for (int row = startRow; (perspective == ChessGame.TeamColor.BLACK) ? row < 9 : row > 0; row += rowIncrement) {
             int space = (row % 2) + 1;
             printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append("\u2003").append(row).append("\u2003");
-            for (int col = 1; col < 9; col++) {
+            for (int col = startCol; (perspective == ChessGame.TeamColor.BLACK) ? col > 0 : col < 9; col += colIncrement) {
                 if (space % 2 == 1) {
                     printBoard.append(SET_BG_COLOR_LIGHT_GREY);
                 } else {
