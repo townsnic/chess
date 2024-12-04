@@ -29,7 +29,7 @@ public class ChessClient implements ServerMessageObserver {
     public String eval(String input) {
         try {
             if (input.isBlank()) {
-                return String.format(SET_TEXT_COLOR_RED + "Invalid input. Enter 'help' for options.");
+                throw new Exception("Invalid input. Enter 'help' for options.");
             }
             String[] tokens = input.split(" ");
             String cmd = tokens[0];
@@ -43,7 +43,7 @@ public class ChessClient implements ServerMessageObserver {
                     case "login" -> login(params);
                     case "help" -> help(params);
                     case "quit" -> quit(params);
-                    default -> String.format(SET_TEXT_COLOR_RED + "Invalid input. Enter 'help' for options.");
+                    default -> throw new Exception("Invalid input. Enter 'help' for options.");
                 };
                 case LOGGED_IN -> switch (cmd) {
                     case "create" -> createGame(params);
@@ -53,20 +53,20 @@ public class ChessClient implements ServerMessageObserver {
                     case "logout" -> logout(params);
                     case "help" -> help(params);
                     case "quit" -> quit(params);
-                    default -> String.format(SET_TEXT_COLOR_RED + "Invalid input. Enter 'help' for options.");
+                    default -> throw new Exception("Invalid input. Enter 'help' for options.");
                 };
                 case IN_GAME -> switch (cmd) {
-                    case "redraw" -> drawBoard(currentGame.game(), teamColor);
+                    case "redraw" -> drawBoard(currentGame.game(), teamColor) + "\n";
                     case "leave" -> leaveGame(params);
                     case "move" -> makeMove(params);
                     case "resign" -> resign(params);
                     case "highlight" -> "highlight";
                     case "help" -> help(params);
-                    default -> String.format(SET_TEXT_COLOR_RED + "Invalid input. Enter 'help' for options.");
+                    default -> throw new Exception("Invalid input. Enter 'help' for options.");
                 };
             };
         } catch (Exception ex) {
-            return ex.getMessage();
+            return String.format(RESET_TEXT_COLOR + "\n" + "[" + state + "]" + " >>> " + SET_TEXT_COLOR_RED + ex.getMessage() + "\n");
         }
     }
 
@@ -79,9 +79,9 @@ public class ChessClient implements ServerMessageObserver {
             AuthData auth = server.register(newUser);
             authToken = auth.authToken();
             state = State.LOGGED_IN;
-            return String.format(SET_TEXT_COLOR_BLUE + "You successfully registered as %s.", username);
+            return String.format("You successfully registered as %s.", username);
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. Expected: <USERNAME> <PASSWORD> <EMAIL>"));
+        throw new Exception("Invalid Command. Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login(String... params) throws Exception {
@@ -92,9 +92,9 @@ public class ChessClient implements ServerMessageObserver {
             AuthData auth = server.login(user);
             authToken = auth.authToken();
             state = State.LOGGED_IN;
-            return String.format(SET_TEXT_COLOR_BLUE + "You successfully logged in as %s.", username);
+            return String.format("You successfully logged in as %s.", username);
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. Expected: <USERNAME> <PASSWORD>"));
+        throw new Exception("Invalid Command. Expected: <USERNAME> <PASSWORD>");
     }
 
     public String logout(String... params) throws Exception {
@@ -102,9 +102,9 @@ public class ChessClient implements ServerMessageObserver {
             assertLoggedIn();
             server.logout(authToken);
             state = State.LOGGED_OUT;
-            return String.format(SET_TEXT_COLOR_BLUE + "You have successfully logged out of account %s.", username);
+            return String.format("You have successfully logged out of account %s.", username);
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. No parameters required."));
+        throw new Exception("Invalid Command. No parameters required.");
     }
 
     public String createGame(String... params) throws Exception {
@@ -113,9 +113,9 @@ public class ChessClient implements ServerMessageObserver {
             String gameName = params[0];
             GameData newGame = new GameData(0, null, null, gameName, null);
             GameData createdGame = server.create(newGame, authToken);
-            return String.format(SET_TEXT_COLOR_BLUE + "You created %s.", createdGame.gameName());
+            return String.format("You created %s.", createdGame.gameName());
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. Expected: <NAME>"));
+        throw new Exception("Invalid Command. Expected: <NAME>");
     }
 
     public String listGames() throws Exception {
@@ -123,7 +123,7 @@ public class ChessClient implements ServerMessageObserver {
         Collection<GameData> games = server.list(authToken);
         StringBuilder result = new StringBuilder();
         int gameNum = 1;
-        result.append(String.format(SET_TEXT_COLOR_BLUE + "%-10s %-20s %-20s %-20s%n", "Game ID", "Game Name", "White Player", "Black Player"));
+        result.append(String.format("%-10s %-20s %-20s %-20s %-20s%n", "Game ID", "Game Name", "White Player", "Black Player", "Status"));
         for (GameData game : games) {
             String whiteUsername;
             String blackUsername;
@@ -137,7 +137,13 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 blackUsername = game.blackUsername();
             }
-            result.append(String.format(SET_TEXT_COLOR_BLUE + "%-10s %-20s %-20s %-20s%n", gameNum, game.gameName(), whiteUsername, blackUsername));
+
+            String status = "Active";
+            if (game.game().gameOver) {
+                status = "Finished";
+            }
+
+            result.append(String.format("%-10s %-20s %-20s %-20s %-20s%n", gameNum, game.gameName(), whiteUsername, blackUsername, status));
             ++gameNum;
         }
         return result.toString();
@@ -150,17 +156,17 @@ public class ChessClient implements ServerMessageObserver {
             try {
                 gameNum = Integer.parseInt(params[0]);
             } catch (Exception ex) {
-                throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid game ID."));
+                throw new Exception("Error: Please provide a valid game ID.");
             }
             Collection<GameData> games = server.list(authToken);
             if (gameNum < 1 || gameNum > games.size()) {
-                throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid game ID."));
+                throw new Exception("Error: Please provide a valid game ID.");
             }
             ArrayList<GameData> gameList = new ArrayList<>(games);
             currentGame = gameList.get(gameNum - 1);
             teamColor = null;
 
-            String successMessage = String.format(SET_TEXT_COLOR_BLUE + "You are now observing %s.", currentGame.gameName());
+            String successMessage = String.format("You are now observing %s.", currentGame.gameName());
             state = State.IN_GAME;
 
             // Send WebSocket messages
@@ -169,7 +175,7 @@ public class ChessClient implements ServerMessageObserver {
 
             return successMessage;
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. Expected: <ID>"));
+        throw new Exception("Invalid Command. Expected: <ID>");
     }
 
     public String playGame(String... params) throws Exception {
@@ -179,11 +185,11 @@ public class ChessClient implements ServerMessageObserver {
             try {
                 gameNum = Integer.parseInt(params[0]);
             } catch (Exception ex) {
-                throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid game ID."));
+                throw new Exception("Error: Please provide a valid game ID.");
             }
             Collection<GameData> games = server.list(authToken);
             if (gameNum < 1 || gameNum > games.size()) {
-                throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid game ID."));
+                throw new Exception("Error: Please provide a valid game ID.");
             }
             ArrayList<GameData> gameList = new ArrayList<>(games);
             currentGame = gameList.get(gameNum - 1);
@@ -195,13 +201,13 @@ public class ChessClient implements ServerMessageObserver {
             } else if (Objects.equals(color.toUpperCase(), "BLACK")) {
                 teamColor = ChessGame.TeamColor.BLACK;
             } else {
-                throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please select a valid team color."));
+                throw new Exception("Error: Please select a valid team color.");
             }
 
             //Join the game
             JoinRequest newRequest = new JoinRequest(teamColor, currentGame.gameID());
             server.join(newRequest, authToken);
-            String successMessage = String.format(SET_TEXT_COLOR_BLUE + "You are now playing %s as %s.", currentGame.gameName(), color.toLowerCase());
+            String successMessage = String.format("You are now playing %s as %s.", currentGame.gameName(), color.toLowerCase());
             state = State.IN_GAME;
 
             // Send WebSocket messages
@@ -210,36 +216,36 @@ public class ChessClient implements ServerMessageObserver {
 
             return successMessage;
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. Expected: <ID> <WHITE|BLACK>"));
+        throw new Exception("Invalid Command. Expected: <ID> <WHITE|BLACK>");
     }
 
     public String leaveGame(String... params) throws Exception {
         if (params.length == 0) {
             ws.leaveGame(authToken, currentGame.gameID());
             state = State.LOGGED_IN;
-            String successMessage = String.format(SET_TEXT_COLOR_BLUE + "You have left %s.", currentGame.gameName());
+            String successMessage = String.format("You have left %s.", currentGame.gameName());
             currentGame = null;
             teamColor = null;
             return successMessage;
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. No parameters required."));
+        throw new Exception("Invalid Command. No parameters required.");
     }
 
     public String resign(String... params) throws Exception {
         if (params.length == 0) {
-            System.out.printf(SET_TEXT_COLOR_BLUE + "Are you sure you want to forfeit %s?\n" + SET_TEXT_COLOR_WHITE + ">>> " + SET_TEXT_COLOR_GREEN, currentGame.gameName());
+            System.out.printf(SET_TEXT_COLOR_BLUE + "Are you sure you want to forfeit %s?\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN, currentGame.gameName());
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
             if (line.equalsIgnoreCase("yes") || line.equalsIgnoreCase("y")) {
                 ws.resign(authToken, currentGame.gameID());
-                return String.format(SET_TEXT_COLOR_BLUE + "You have forfeited %s.", currentGame.gameName());
+                return String.format("You have forfeited %s.", currentGame.gameName());
             } else if (line.equalsIgnoreCase("no") || line.equalsIgnoreCase("n")) {
-                return String.format(SET_TEXT_COLOR_BLUE + "You are still playing %s.", currentGame.gameName());
+                return String.format("You are still playing %s.", currentGame.gameName());
             } else {
-                return String.format(SET_TEXT_COLOR_RED + "Invalid Input. Expected <YES|NO>");
+                throw new Exception("Invalid Input. Expected <YES|NO>");
             }
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. No parameters required."));
+        throw new Exception("Invalid Command. No parameters required.");
     }
 
     public String makeMove(String... params) throws Exception {
@@ -248,7 +254,7 @@ public class ChessClient implements ServerMessageObserver {
                 String curPos = params[0];
                 String newPos = params[1];
                 if (curPos.length() != 2 || newPos.length() != 2) {
-                    throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid move."));
+                    throw new Exception("Error: Please provide a valid move.");
                 }
 
                 int startCol = switch (curPos.charAt(0)) {
@@ -260,12 +266,12 @@ public class ChessClient implements ServerMessageObserver {
                     case 'f' -> 6;
                     case 'g' -> 7;
                     case 'h' -> 8;
-                    default -> throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid start position."));
+                    default -> throw new Exception("Error: Please provide a valid start position.");
                 };
 
                 int startRow = Integer.parseInt(Character.toString(curPos.charAt(1)));
                 if (startRow < 1 || startRow > 8) {
-                    throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid start position."));
+                    throw new Exception("Error: Please provide a valid start position.");
                 }
 
                 int endCol = switch (newPos.charAt(0)) {
@@ -277,12 +283,12 @@ public class ChessClient implements ServerMessageObserver {
                     case 'f' -> 6;
                     case 'g' -> 7;
                     case 'h' -> 8;
-                    default -> throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid end position."));
+                    default -> throw new Exception("Error: Please provide a valid end position.");
                 };
 
                 int endRow = Integer.parseInt(Character.toString(newPos.charAt(1)));
                 if (endRow < 1 || endRow > 8) {
-                    throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid end position."));
+                    throw new Exception("Error: Please provide a valid end position.");
                 }
 
                 ChessPosition startPos = new ChessPosition(startRow, startCol);
@@ -291,18 +297,18 @@ public class ChessClient implements ServerMessageObserver {
                 ChessPiece curPiece = currentGame.game().getBoard().getPiece(startPos);
 
                 if (curPiece == null) {
-                    throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: There is no piece at that position."));
+                    throw new Exception("Error: There is no piece at that position.");
                 }
 
                 if (curPiece.getTeamColor() != teamColor) {
-                    throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: That's not your piece."));
+                    throw new Exception("Error: That's not your piece.");
                 }
 
                 ChessPiece.PieceType promotionPiece = null;
                 if ((curPiece.getPieceType() == chess.ChessPiece.PieceType.PAWN) &&
                         ((curPiece.getTeamColor() == ChessGame.TeamColor.WHITE && endRow == 8) ||
                                 (curPiece.getTeamColor() == ChessGame.TeamColor.BLACK && endRow == 1))) {
-                    System.out.print(SET_TEXT_COLOR_BLUE + "What would you like to promote your pawn to?\n" + SET_TEXT_COLOR_WHITE + ">>> " + SET_TEXT_COLOR_GREEN);
+                    System.out.print(SET_TEXT_COLOR_BLUE + "What would you like to promote your pawn to?\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
                     Scanner scanner = new Scanner(System.in);
                     String line = scanner.nextLine();
 
@@ -311,22 +317,22 @@ public class ChessClient implements ServerMessageObserver {
                         case "rook" -> ChessPiece.PieceType.ROOK;
                         case "bishop" -> ChessPiece.PieceType.BISHOP;
                         case "knight" -> ChessPiece.PieceType.KNIGHT;
-                        default -> throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: Please provide a valid piece."));
+                        default -> throw new Exception("Error: Please provide a valid piece.");
                     };
                 }
                 ChessMove move = new ChessMove(startPos, endPos, promotionPiece);
                 ws.move(authToken, currentGame.gameID(), move);
                 return "";
             }
-            throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. Expected: <CURRENT_SPACE> <NEW_SPACE>"));
+            throw new Exception("Invalid Command. Expected: <CURRENT_SPACE> <NEW_SPACE>");
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Error: The game is over. No more moves can be made."));
+        throw new Exception("Error: The game is over. No more moves can be made.");
     }
 
     public String drawBoard(ChessGame game, ChessGame.TeamColor perspective) {
         ChessBoard board = game.getBoard();
         StringBuilder printBoard = new StringBuilder();
-        printBoard.append("\n\n");
+        printBoard.append("\n");
         String[] columns;
         if (perspective == ChessGame.TeamColor.BLACK) {
             columns = new String[] {"h", "g", "f", "e", "d", "c", "b", "a"};
@@ -413,7 +419,7 @@ public class ChessClient implements ServerMessageObserver {
                 printBoard.append(" ");
             }
         }
-        printBoard.append("\u2003\u2009").append(EMPTY).append(RESET_BG_COLOR).append("\n");
+        printBoard.append("\u2003\u2009").append(EMPTY).append(RESET_BG_COLOR);
 
         return printBoard.toString();
     }
@@ -421,14 +427,14 @@ public class ChessClient implements ServerMessageObserver {
     public String help(String... params) throws Exception {
         if (params.length == 0) {
             if (state == State.LOGGED_OUT) {
-                return SET_TEXT_COLOR_BLUE + """
+                return """
                         - register <USERNAME> <PASSWORD> <EMAIL>
                         - login <USERNAME> <PASSWORD>
                         - quit
                         - help
                         """;
             } else if (state == State.LOGGED_IN) {
-                return SET_BG_COLOR_BLUE + """
+                return """
                         - create <NAME>
                         - list
                         - join <ID> <WHITE|BLACK>
@@ -438,7 +444,7 @@ public class ChessClient implements ServerMessageObserver {
                         - help
                         """;
             } else if (state == State.IN_GAME) {
-                return SET_TEXT_COLOR_BLUE + """
+                return """
                         - redraw
                         - move <CURRENT_SPACE> <NEW_SPACE>
                         - highlight <SPACE>
@@ -449,7 +455,7 @@ public class ChessClient implements ServerMessageObserver {
             }
             return null;
         }
-        throw new Exception(String.format(SET_TEXT_COLOR_RED + "Invalid Command. No parameters required."));
+        throw new Exception("Invalid Command. No parameters required.");
     }
 
     public String quit(String... params) throws Exception {
@@ -477,8 +483,8 @@ public class ChessClient implements ServerMessageObserver {
         ServerMessage message = gson.fromJson(json, ServerMessage.class);
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> System.out.printf(SET_TEXT_COLOR_BLUE + gson.fromJson(json, NotificationMessage.class).getMessage());
-            case ERROR -> System.out.printf(SET_TEXT_COLOR_RED + gson.fromJson(json, ErrorMessage.class).getErrorMessage());
-            case LOAD_GAME -> System.out.println(drawBoard(gson.fromJson(json, LoadGameMessage.class).getGame(), teamColor));
+            case ERROR -> System.out.printf(SET_TEXT_COLOR_RED + gson.fromJson(json, ErrorMessage.class).getErrorMessage() + "\n");
+            case LOAD_GAME -> System.out.println("\n" + drawBoard(gson.fromJson(json, LoadGameMessage.class).getGame(), teamColor));
         }
         System.out.print(RESET_BG_COLOR + RESET_TEXT_COLOR + "\n" + "[" + state + "]" + " >>> " + SET_TEXT_COLOR_GREEN);
     }
