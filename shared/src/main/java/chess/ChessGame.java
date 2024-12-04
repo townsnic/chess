@@ -113,6 +113,7 @@ public class ChessGame {
 
                 // If a move removes the king from check, not checkmate
                 if (!isInCheck(teamColor)) {
+                    gameBoard = copyBoard(testBoard);
                     return false;
                 }
                 gameBoard = copyBoard(testBoard);

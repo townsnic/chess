@@ -219,6 +219,9 @@ public class ChessClient implements ServerMessageObserver {
 
     public String resign(String... params) throws Exception {
         if (params.length == 0) {
+            if (currentGame.game().gameOver) {
+                throw new Exception("Error: The game is already over.");
+            }
             System.out.printf(SET_TEXT_COLOR_BLUE + "Are you sure you want to forfeit %s?\n" + RESET_TEXT_COLOR + ">>> "
                     + SET_TEXT_COLOR_GREEN, currentGame.gameName());
             Scanner scanner = new Scanner(System.in);
@@ -389,9 +392,11 @@ public class ChessClient implements ServerMessageObserver {
                 throw new Exception("Error: Please provide a valid position.");
             }
             ChessPosition myPosition = getChessPosition(position);
-            Collection<ChessMove> validMoves = currentGame.game().validMoves(myPosition);
-            for (ChessMove move : validMoves) {
-                highlights.add(move.getEndPosition());
+            if (currentGame.game().getBoard().getPiece(myPosition) != null) {
+                Collection<ChessMove> validMoves = currentGame.game().validMoves(myPosition);
+                for (ChessMove move : validMoves) {
+                    highlights.add(move.getEndPosition());
+                }
             }
             return drawBoard(currentGame.game(), teamColor) + "\n";
         }
