@@ -11,14 +11,15 @@ import websocket.WebSocketCommunicator;
 import websocket.messages.*;
 
 public class ChessClient implements ServerMessageObserver {
+    private final Collection<ChessPosition> highlights = new ArrayList<>();
     private final Gson gson = new Gson();
     private final ServerFacade server;
     private final String serverUrl;
     private WebSocketCommunicator ws;
     private String username = null;
     private String authToken = null;
-    private GameData currentGame;
     private ChessGame.TeamColor teamColor = null;
+    private GameData currentGame;
     public State state = State.LOGGED_OUT;
 
     public ChessClient(String serverUrl) {
@@ -60,7 +61,7 @@ public class ChessClient implements ServerMessageObserver {
                     case "leave" -> leaveGame(params);
                     case "move" -> makeMove(params);
                     case "resign" -> resign(params);
-                    case "highlight" -> "highlight";
+                    case "highlight" -> highlight(params);
                     case "help" -> help(params);
                     default -> throw new Exception("Invalid input. Enter 'help' for options.");
                 };
@@ -257,44 +258,10 @@ public class ChessClient implements ServerMessageObserver {
                     throw new Exception("Error: Please provide a valid move.");
                 }
 
-                int startCol = switch (curPos.charAt(0)) {
-                    case 'a' -> 1;
-                    case 'b' -> 2;
-                    case 'c' -> 3;
-                    case 'd' -> 4;
-                    case 'e' -> 5;
-                    case 'f' -> 6;
-                    case 'g' -> 7;
-                    case 'h' -> 8;
-                    default -> throw new Exception("Error: Please provide a valid start position.");
-                };
-
-                int startRow = Integer.parseInt(Character.toString(curPos.charAt(1)));
-                if (startRow < 1 || startRow > 8) {
-                    throw new Exception("Error: Please provide a valid start position.");
-                }
-
-                int endCol = switch (newPos.charAt(0)) {
-                    case 'a' -> 1;
-                    case 'b' -> 2;
-                    case 'c' -> 3;
-                    case 'd' -> 4;
-                    case 'e' -> 5;
-                    case 'f' -> 6;
-                    case 'g' -> 7;
-                    case 'h' -> 8;
-                    default -> throw new Exception("Error: Please provide a valid end position.");
-                };
-
-                int endRow = Integer.parseInt(Character.toString(newPos.charAt(1)));
-                if (endRow < 1 || endRow > 8) {
-                    throw new Exception("Error: Please provide a valid end position.");
-                }
-
-                ChessPosition startPos = new ChessPosition(startRow, startCol);
-                ChessPosition endPos = new ChessPosition(endRow, endCol);
-
+                ChessPosition startPos = getChessPosition(curPos);//new ChessPosition(startRow, startCol);
+                ChessPosition endPos = getChessPosition(newPos);//new ChessPosition(endRow, endCol);
                 ChessPiece curPiece = currentGame.game().getBoard().getPiece(startPos);
+                int endRow = Integer.parseInt(Character.toString(newPos.charAt(1)));
 
                 if (curPiece == null) {
                     throw new Exception("Error: There is no piece at that position.");
@@ -321,6 +288,8 @@ public class ChessClient implements ServerMessageObserver {
                     };
                 }
                 ChessMove move = new ChessMove(startPos, endPos, promotionPiece);
+                highlights.add(startPos);
+                highlights.add(endPos);
                 ws.move(authToken, currentGame.gameID(), move);
                 return "";
             }
@@ -369,10 +338,19 @@ public class ChessClient implements ServerMessageObserver {
             int space = (row % 2) + 1;
             printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append("\u2003").append(row).append("\u2003");
             for (int col = startCol; (perspective == ChessGame.TeamColor.BLACK) ? col > 0 : col < 9; col += colIncrement) {
-                if (space % 2 == 1) {
-                    printBoard.append(SET_BG_COLOR_LIGHT_GREY);
+                ChessPosition curPos = new ChessPosition(row, col);
+                if (space % 2 == ((perspective == ChessGame.TeamColor.BLACK) ? 0 : 1)) {
+                    if (highlights.contains(curPos)) {
+                        printBoard.append(SET_BG_COLOR_GREEN);
+                    } else {
+                        printBoard.append(SET_BG_COLOR_LIGHT_GREY);
+                    }
                 } else {
-                    printBoard.append(SET_BG_COLOR_DARK_GREY);
+                    if (highlights.contains(curPos)) {
+                        printBoard.append(SET_BG_COLOR_DARK_GREEN);
+                    } else {
+                        printBoard.append(SET_BG_COLOR_DARK_GREY);
+                    }
                 }
                 ChessPiece currentPiece = board.getPiece(new ChessPosition(row, col));
                 if (currentPiece != null) {
@@ -420,8 +398,47 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
         printBoard.append("\u2003\u2009").append(EMPTY).append(RESET_BG_COLOR);
+        highlights.clear();
 
         return printBoard.toString();
+    }
+
+    public String highlight(String... params) throws Exception {
+        if (params.length == 1) {
+            String position = params[0];
+            if (position.length() != 2) {
+                throw new Exception("Error: Please provide a valid position.");
+            }
+
+            ChessPosition myPosition = getChessPosition(position);
+            Collection<ChessMove> validMoves = currentGame.game().validMoves(myPosition);
+            for (ChessMove move : validMoves) {
+                highlights.add(move.getEndPosition());
+            }
+            return drawBoard(currentGame.game(), teamColor);
+        }
+        throw new Exception("Invalid Command. Expected: <SPACE>");
+    }
+
+    private static ChessPosition getChessPosition(String position) throws Exception {
+        int col = switch (position.charAt(0)) {
+            case 'a' -> 1;
+            case 'b' -> 2;
+            case 'c' -> 3;
+            case 'd' -> 4;
+            case 'e' -> 5;
+            case 'f' -> 6;
+            case 'g' -> 7;
+            case 'h' -> 8;
+            default -> throw new Exception("Error: Please provide a valid position.");
+        };
+
+        int row = Integer.parseInt(Character.toString(position.charAt(1)));
+        if (row < 1 || row > 8) {
+            throw new Exception("Error: Please provide a valid position.");
+        }
+
+        return new ChessPosition(row, col);
     }
 
     public String help(String... params) throws Exception {
