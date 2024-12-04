@@ -43,7 +43,6 @@ public class GameService {
         ChessGame.TeamColor playerColor = joinRequest.playerColor();
         int gameID = joinRequest.gameID();
         GameData gameToJoin = gameDAO.getGame(gameID);
-        String username = authDAO.getAuth(authToken).username();
 
         if (playerColor != ChessGame.TeamColor.WHITE && playerColor != ChessGame.TeamColor.BLACK) {
             throw new ServiceException(400, "Error: Please provide a valid color.");
@@ -54,6 +53,7 @@ public class GameService {
         if (authDAO.getAuth(authToken) == null) {
             throw new ServiceException(401, "Error: Unauthorized");
         }
+        String username = authDAO.getAuth(authToken).username();
         if (playerColor == ChessGame.TeamColor.WHITE) {
             if (!(gameToJoin.whiteUsername() == null || gameToJoin.whiteUsername().equals(username))) {
                 throw new ServiceException(403, "Error: The selected color is already taken.");
