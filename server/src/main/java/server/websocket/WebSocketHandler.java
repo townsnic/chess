@@ -34,7 +34,7 @@ public class WebSocketHandler {
 
         switch (command.getCommandType()) {
             case CONNECT -> connect(command, session);
-            case MAKE_MOVE -> move(moveCommand);
+            case MAKE_MOVE -> move(moveCommand, session);
             case LEAVE -> leave(command);
             case RESIGN -> resign(command);
         }
@@ -75,12 +75,42 @@ public class WebSocketHandler {
         connections.sendToSelf(gameID, authToken, new LoadGameMessage(gameDAO.getGame(gameID).game(), null));
     }
 
-    private void move(MakeMoveCommand command) throws Exception {
+    private void move(MakeMoveCommand command, Session session) throws Exception {
         String authToken = command.getAuthToken();
         int gameID = command.getGameID();
+
+        if (authDAO.getAuth(authToken) == null) {
+            ErrorMessage error = new ErrorMessage("Error: Unauthorized");
+            connections.addConnection(gameID, authToken, session);
+            connections.sendToSelf(gameID, authToken, error);
+            return;
+        }
+
         String username = authDAO.getAuth(authToken).username();
 
         GameData game = gameDAO.getGame(gameID);
+
+        if (game.game().gameOver) {
+            ErrorMessage error = new ErrorMessage("Error: The game is over. No more moves can be made.");
+            connections.sendToSelf(gameID, authToken, error);
+            return;
+        }
+
+        if (!Objects.equals(username, game.blackUsername()) && !Objects.equals(username, game.whiteUsername())) {
+            ErrorMessage error = new ErrorMessage("Error: An observer cannot make a move.");
+            connections.sendToSelf(gameID, authToken, error);
+            return;
+        }
+
+        if ((Objects.equals(username, game.blackUsername()) &&
+                (game.game().getBoard().getPiece(command.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE)) ||
+                (Objects.equals(username, game.whiteUsername()) &&
+                        (game.game().getBoard().getPiece(command.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK))) {
+            ErrorMessage error = new ErrorMessage("Error: You cannot move your opponent's piece.");
+            connections.sendToSelf(gameID, authToken, error);
+            return;
+        }
+
         try {
             game.game().makeMove(command.getMove());
         } catch (Exception ex) {
@@ -162,15 +192,30 @@ public class WebSocketHandler {
 
     private void resign(UserGameCommand command) throws Exception {
         String username = authDAO.getAuth(command.getAuthToken()).username();
-
         GameData oldGame = gameDAO.getGame(command.getGameID());
         ChessGame game = oldGame.game();
+
+        if (game.gameOver) {
+            ErrorMessage error = new ErrorMessage("Error: The game is already over.");
+            connections.sendToSelf(oldGame.gameID(), command.getAuthToken(), error);
+            return;
+        }
+
+        if (!Objects.equals(username, oldGame.blackUsername()) && !Objects.equals(username, oldGame.whiteUsername())) {
+            ErrorMessage error = new ErrorMessage("Error: An observer cannot resign.");
+            connections.sendToSelf(oldGame.gameID(), command.getAuthToken(), error);
+            return;
+        }
+
         game.gameOver = true;
         GameData newGame = new GameData(oldGame.gameID(), oldGame.whiteUsername(), oldGame.blackUsername(), oldGame.gameName(), game);
         gameDAO.updateGame(newGame);
 
         String message = String.format("%s has forfeited %s.", username, oldGame.gameName());
+        String selfMessage = String.format("You have forfeited %s.", oldGame.gameName());
         NotificationMessage notification = new NotificationMessage(message);
+        NotificationMessage selfNotification = new NotificationMessage(message);
         connections.broadcast(oldGame.gameID(), command.getAuthToken(), notification);
+        connections.sendToSelf(oldGame.gameID(), command.getAuthToken(), selfNotification);
     }
 }
