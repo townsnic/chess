@@ -72,7 +72,7 @@ public class WebSocketHandler {
         }
         NotificationMessage notification = new NotificationMessage(message);
         connections.broadcast(gameID, authToken, notification);
-        connections.sendToSelf(gameID, authToken, new LoadGameMessage(gameDAO.getGame(gameID).game()));
+        connections.sendToSelf(gameID, authToken, new LoadGameMessage(gameDAO.getGame(gameID).game(), null));
     }
 
     private void move(MakeMoveCommand command) throws Exception {
@@ -90,7 +90,7 @@ public class WebSocketHandler {
         }
         gameDAO.updateGame(new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
 
-        LoadGameMessage gameMessage = new LoadGameMessage(game.game());
+        LoadGameMessage gameMessage = new LoadGameMessage(game.game(), command.getMove());
         connections.broadcast(gameID, authToken, gameMessage);
         connections.sendToSelf(gameID, authToken, gameMessage);
 

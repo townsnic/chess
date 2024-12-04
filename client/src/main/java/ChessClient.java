@@ -29,14 +29,12 @@ public class ChessClient implements ServerMessageObserver {
 
     public String eval(String input) {
         try {
-            if (input.isBlank()) {
-                throw new Exception("Invalid input. Enter 'help' for options.");
-            }
             String[] tokens = input.split(" ");
             String cmd = tokens[0];
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             if (state == State.IN_GAME) {
                 updateGame();
+                highlights.clear();
             }
             return switch (state) {
                 case LOGGED_OUT -> switch (cmd) {
@@ -288,8 +286,6 @@ public class ChessClient implements ServerMessageObserver {
                     };
                 }
                 ChessMove move = new ChessMove(startPos, endPos, promotionPiece);
-                highlights.add(startPos);
-                highlights.add(endPos);
                 ws.move(authToken, currentGame.gameID(), move);
                 return "";
             }
@@ -415,7 +411,7 @@ public class ChessClient implements ServerMessageObserver {
             for (ChessMove move : validMoves) {
                 highlights.add(move.getEndPosition());
             }
-            return drawBoard(currentGame.game(), teamColor);
+            return drawBoard(currentGame.game(), teamColor) + "\n";
         }
         throw new Exception("Invalid Command. Expected: <SPACE>");
     }
@@ -495,13 +491,22 @@ public class ChessClient implements ServerMessageObserver {
         currentGame = gameList.get(gameID - 1);
     }
 
+    private String loadGame(String json) {
+        LoadGameMessage message = gson.fromJson(json, LoadGameMessage.class);
+        if (message.getMove() != null) {
+            highlights.add(message.getMove().getStartPosition());
+            highlights.add(message.getMove().getEndPosition());
+        }
+        return drawBoard(message.getGame(), teamColor);
+    }
+
     @Override
     public void notify(String json) {
         ServerMessage message = gson.fromJson(json, ServerMessage.class);
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> System.out.printf(SET_TEXT_COLOR_BLUE + gson.fromJson(json, NotificationMessage.class).getMessage());
             case ERROR -> System.out.printf(SET_TEXT_COLOR_RED + gson.fromJson(json, ErrorMessage.class).getErrorMessage() + "\n");
-            case LOAD_GAME -> System.out.println("\n" + drawBoard(gson.fromJson(json, LoadGameMessage.class).getGame(), teamColor));
+            case LOAD_GAME -> System.out.println("\n" + loadGame(json));
         }
         System.out.print(RESET_BG_COLOR + RESET_TEXT_COLOR + "\n" + "[" + state + "]" + " >>> " + SET_TEXT_COLOR_GREEN);
     }
