@@ -131,14 +131,14 @@ public class ChessGame {
         ChessPiece myPiece = gameBoard.getPiece(move.getStartPosition());
         // Checks for invalid moves, then makes move
         if (myPiece == null) {
-            throw new InvalidMoveException("There is no piece at that start position!");
+            throw new InvalidMoveException("Error: There is no piece at that start position.");
         } else if (myPiece.getTeamColor() != turn) {
-            throw new InvalidMoveException("It's not your turn!");
+            throw new InvalidMoveException("Error: It's not your turn.");
         } else if (validMoves(move.getStartPosition()) == null || !validMoves(move.getStartPosition()).contains(move)) {
             if (myPiece.pieceMoves(gameBoard, move.getStartPosition()).contains(move)) {
-                throw new InvalidMoveException("You can't leave your king in check!");
+                throw new InvalidMoveException("Error: You can't leave your king in check.");
             } else {
-                throw new InvalidMoveException("Invalid move!");
+                throw new InvalidMoveException("Error: Invalid move.");
             }
         } else {
             gameBoard.movePiece(move);
