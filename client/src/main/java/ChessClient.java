@@ -136,12 +136,10 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 blackUsername = game.blackUsername();
             }
-
             String status = "Active";
             if (game.game().gameOver) {
                 status = "Finished";
             }
-
             result.append(String.format("%-10s %-20s %-20s %-20s %-20s%n", gameNum, game.gameName(), whiteUsername, blackUsername, status));
             ++gameNum;
         }
@@ -157,23 +155,17 @@ public class ChessClient implements ServerMessageObserver {
             } catch (Exception ex) {
                 throw new Exception("Error: Please provide a valid game ID.");
             }
-
             Collection<GameData> games = server.list(authToken);
             if (gameNum < 1 || gameNum > games.size()) {
                 throw new Exception("Error: Please provide a valid game ID.");
             }
-
             ArrayList<GameData> gameList = new ArrayList<>(games);
             currentGame = gameList.get(gameNum - 1);
             teamColor = null;
-
             String successMessage = String.format("You are now observing %s.", currentGame.gameName());
             state = State.IN_GAME;
-
-            // Send WebSocket messages
             ws = new WebSocketCommunicator(serverUrl, this);
             ws.joinGame(authToken, currentGame.gameID());
-
             return successMessage;
         }
         throw new Exception("Invalid Command. Expected: <ID>");
@@ -188,16 +180,12 @@ public class ChessClient implements ServerMessageObserver {
             } catch (Exception ex) {
                 throw new Exception("Error: Please provide a valid game ID.");
             }
-
             Collection<GameData> games = server.list(authToken);
             if (gameNum < 1 || gameNum > games.size()) {
                 throw new Exception("Error: Please provide a valid game ID.");
             }
-
             ArrayList<GameData> gameList = new ArrayList<>(games);
             currentGame = gameList.get(gameNum - 1);
-
-            // Get the desired color
             String color = params[1];
             if (Objects.equals(color.toUpperCase(), "WHITE")) {
                 teamColor = ChessGame.TeamColor.WHITE;
@@ -206,17 +194,12 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 throw new Exception("Error: Please select a valid team color.");
             }
-
-            //Join the game
             JoinRequest newRequest = new JoinRequest(teamColor, currentGame.gameID());
             server.join(newRequest, authToken);
             String successMessage = String.format("You are now playing %s as %s.", currentGame.gameName(), color.toLowerCase());
             state = State.IN_GAME;
-
-            // Send WebSocket messages
             ws = new WebSocketCommunicator(serverUrl, this);
             ws.joinGame(authToken, currentGame.gameID());
-
             return successMessage;
         }
         throw new Exception("Invalid Command. Expected: <ID> <WHITE|BLACK>");
@@ -236,7 +219,8 @@ public class ChessClient implements ServerMessageObserver {
 
     public String resign(String... params) throws Exception {
         if (params.length == 0) {
-            System.out.printf(SET_TEXT_COLOR_BLUE + "Are you sure you want to forfeit %s?\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN, currentGame.gameName());
+            System.out.printf(SET_TEXT_COLOR_BLUE + "Are you sure you want to forfeit %s?\n" + RESET_TEXT_COLOR + ">>> "
+                    + SET_TEXT_COLOR_GREEN, currentGame.gameName());
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
             if (line.equalsIgnoreCase("yes") || line.equalsIgnoreCase("y")) {
@@ -262,27 +246,24 @@ public class ChessClient implements ServerMessageObserver {
                 if (curPos.length() != 2 || newPos.length() != 2) {
                     throw new Exception("Error: Please provide a valid move.");
                 }
-
                 ChessPosition startPos = getChessPosition(curPos);
                 ChessPosition endPos = getChessPosition(newPos);
                 ChessPiece curPiece = currentGame.game().getBoard().getPiece(startPos);
                 int endRow = Integer.parseInt(Character.toString(newPos.charAt(1)));
-
                 if (curPiece == null) {
                     throw new Exception("Error: There is no piece at that position.");
                 }
                 if (curPiece.getTeamColor() != teamColor) {
                     throw new Exception("Error: You cannot move your opponent's piece.");
                 }
-
                 ChessPiece.PieceType promotionPiece = null;
                 if ((curPiece.getPieceType() == chess.ChessPiece.PieceType.PAWN) &&
                         ((curPiece.getTeamColor() == ChessGame.TeamColor.WHITE && endRow == 8) ||
                                 (curPiece.getTeamColor() == ChessGame.TeamColor.BLACK && endRow == 1))) {
-                    System.out.print(SET_TEXT_COLOR_BLUE + "What would you like to promote your pawn to?\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
+                    System.out.print(SET_TEXT_COLOR_BLUE + "What would you like to promote your pawn to?\n" +
+                            RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
                     Scanner scanner = new Scanner(System.in);
                     String line = scanner.nextLine();
-
                     promotionPiece = switch (line.toLowerCase()) {
                         case "queen" -> ChessPiece.PieceType.QUEEN;
                         case "rook" -> ChessPiece.PieceType.ROOK;
@@ -310,7 +291,6 @@ public class ChessClient implements ServerMessageObserver {
         } else {
             columns = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
         }
-
         printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append(EMPTY).append("\u2009");
         for (int col = 0; col < columns.length; ++col) {
             printBoard.append("\u2003").append(columns[col]);
@@ -319,7 +299,6 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
         printBoard.append("\u2003\u2009").append(EMPTY).append(RESET_BG_COLOR).append("\n");
-
         int startRow;
         int startCol;
         int rowIncrement;
@@ -335,7 +314,6 @@ public class ChessClient implements ServerMessageObserver {
             startCol = 1;
             colIncrement = 1;
         }
-
         for (int row = startRow; (perspective == ChessGame.TeamColor.BLACK) ? row < 9 : row > 0; row += rowIncrement) {
             int space = (row % 2) + 1;
             printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append("\u2003").append(row).append("\u2003");
@@ -392,7 +370,6 @@ public class ChessClient implements ServerMessageObserver {
             printBoard.append(SET_BG_COLOR_BLUE).append(SET_TEXT_COLOR_BLACK).append("\u2003").append(row).append("\u2003");
             printBoard.append(RESET_BG_COLOR).append("\n");
         }
-
         printBoard.append(SET_BG_COLOR_BLUE).append(EMPTY).append("\u2009");
         for (int col = 0; col < columns.length; ++col) {
             printBoard.append("\u2003").append(columns[col]);
@@ -402,7 +379,6 @@ public class ChessClient implements ServerMessageObserver {
         }
         printBoard.append("\u2003\u2009").append(EMPTY).append(RESET_BG_COLOR);
         highlights.clear();
-
         return printBoard.toString();
     }
 
@@ -412,7 +388,6 @@ public class ChessClient implements ServerMessageObserver {
             if (position.length() != 2) {
                 throw new Exception("Error: Please provide a valid position.");
             }
-
             ChessPosition myPosition = getChessPosition(position);
             Collection<ChessMove> validMoves = currentGame.game().validMoves(myPosition);
             for (ChessMove move : validMoves) {
@@ -435,12 +410,10 @@ public class ChessClient implements ServerMessageObserver {
             case 'h' -> 8;
             default -> throw new Exception("Error: Please provide a valid position.");
         };
-
         int row = Integer.parseInt(Character.toString(position.charAt(1)));
         if (row < 1 || row > 8) {
             throw new Exception("Error: Please provide a valid position.");
         }
-
         return new ChessPosition(row, col);
     }
 
